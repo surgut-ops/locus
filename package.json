@@ -13,7 +13,7 @@
     "build": "turbo run build",
     "build:web": "turbo run build --filter=@locus/web",
     "build:api": "turbo run build --filter=@locus/api",
-    "start": "turbo run start",
+    "start": "turbo run start --filter=@locus/api",
     "start:api": "pnpm --filter @locus/api start",
     "lint": "turbo run lint",
     "format": "prettier --write .",
