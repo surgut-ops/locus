@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Touch UX: prevent double-tap zoom on interactive elements */
+@layer base {
+  button,
+  a,
+  [role='button'] {
+    touch-action: manipulation;
+  }
+}
+
+/* Safe area for mobile bottom nav (notch/home indicator) */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Smooth transitions for theme switch */
+html {
+  @apply antialiased;
+}
+
+html.dark {
+  color-scheme: dark;
+}

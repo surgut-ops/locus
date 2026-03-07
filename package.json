@@ -1,0 +1,37 @@
+{
+  "name": "locus",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.6.1",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "dev:api": "pnpm exec turbo run dev --filter=@locus/api",
+    "dev:web": "pnpm exec turbo run dev --filter=@locus/web",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "format": "prettier --write .",
+    "typecheck": "turbo run typecheck",
+    "seed": "prisma db seed",
+    "db:up": "docker compose up -d",
+    "db:migrate": "prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "dev:all": "docker compose up -d && pnpm db:migrate && pnpm dev"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.23.0",
+    "@typescript-eslint/parser": "^8.23.0",
+    "eslint": "^9.19.0",
+    "eslint-config-next": "^15.1.7",
+    "prettier": "^3.4.2",
+    "prisma": "6.4.1",
+    "tsx": "^4.19.2",
+    "turbo": "^2.4.0",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "@prisma/client": "6.4.1"
+  }
+}

@@ -1,0 +1,10 @@
+node_modules
+.env
+.env.production
+.env.local
+.env.*.local
+.next
+dist
+build
+.turbo
+coverage
