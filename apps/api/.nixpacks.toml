@@ -8,4 +8,4 @@ cmds = ["pnpm install"]
 cmds = ["pnpm exec prisma generate && pnpm turbo run build --filter=@locus/api"]
 
 [start]
-cmd = "node dist/index.js"
+cmd = "pnpm --filter @locus/api start"
