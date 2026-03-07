@@ -5,7 +5,7 @@ nixPkgs = ["nodejs_20"]
 cmds = ["pnpm install"]
 
 [phases.build]
-cmds = ["pnpm build"]
+cmds = ["pnpm exec prisma generate && pnpm turbo run build --filter=@locus/api"]
 
 [start]
-cmd = "pnpm start"
+cmd = "node apps/api/dist/index.js"

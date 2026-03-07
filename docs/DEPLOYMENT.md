@@ -55,14 +55,14 @@ cp .env.production.example .env.production
 
 1. [Vercel Dashboard](https://vercel.com) → **Add New Project**
 2. Импорт из GitHub/GitLab/Bitbucket
-3. **Root Directory:** `apps/web`
+3. **Root Directory:** корень репозитория (пусто) — monorepo
 4. **Framework Preset:** Next.js (автоопределение)
 
 ### 2.2 Build & Output
 
-- **Build Command:** `cd ../.. && pnpm turbo run build --filter=@locus/web`
-- **Output Directory:** `.next` (по умолчанию)
-- **Install Command:** `pnpm install` (Vercel запускает из корня монорепо)
+- **Install Command:** `pnpm install`
+- **Build Command:** `pnpm turbo run build --filter=@locus/web`
+- **Output Directory:** `.next` (по умолчанию) — для Root Directory `apps/web` укажите `apps/web`
 
 ### 2.3 Environment Variables (Vercel)
 
@@ -94,15 +94,10 @@ cp .env.production.example .env.production
 ### 3.2 Настройка сервиса API
 
 1. **New** → **GitHub Repo** → выберите репозиторий
-2. **Settings** → **Root Directory:** `apps/api`
-3. **Settings** → **Build Command:**
-   ```
-   cd ../.. && pnpm install && pnpm exec prisma generate && pnpm turbo run build --filter=@locus/api
-   ```
-4. **Settings** → **Start Command:**
-   ```
-   node dist/index.js
-   ```
+2. **Settings** → **Root Directory:** корень репозитория (пусто) — обязательно для monorepo
+3. Build и Start берутся из `railway.json` / `.nixpacks.toml`:
+   - Build: `pnpm install && pnpm exec prisma generate && pnpm turbo run build --filter=@locus/api`
+   - Start: `node apps/api/dist/index.js`
 
 ### 3.3 Переменные окружения (Railway)
 
