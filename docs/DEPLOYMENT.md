@@ -102,9 +102,18 @@ cp .env.production.example .env.production
 
 ### 3.3 Переменные окружения (Railway)
 
-Добавьте все переменные из `.env.production`:
+**Минимум для запуска:**
+- `DATABASE_URL` — из Railway Postgres или внешнего провайдера
+- `REDIS_URL` — **ВАЖНО:** формат `redis://default:password@hostname:port`  
+  - ❌ НЕ использовать `redis://...@host:port` (буквально "host")  
+  - ✅ Redis Cloud: `redis://default:PASSWORD@xxx.ec2.cloud.redislabs.com:17897`
+- `JWT_SECRET`, `OPENAI_API_KEY`
+- `MEILISEARCH_HOST`, `MEILISEARCH_KEY`
+- `QUEUE_PREFIX=locus`, `LOG_LEVEL=info`
 
-- `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `OPENAI_API_KEY`
+**Ошибка `ENOTFOUND host`** — значит в REDIS_URL или DATABASE_URL указан placeholder "host" вместо реального хоста. Замените на полный URL из Redis Cloud / Meilisearch Cloud.
+
+Добавьте также:
 - `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`
 - `CLOUDFLARE_R2_*` или `S3_*`
 - `STRIPE_*`, `YOOKASSA_*`
