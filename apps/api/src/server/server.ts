@@ -37,6 +37,7 @@ import { registerSearchModuleRoutes } from '../routes/search.routes.js';
 const DEFAULT_CORS_ORIGINS = [
   'http://localhost:3000',
   'https://locus-web-seven.vercel.app',
+  'https://locus.app',
 ];
 
 export async function createServer(prisma: PrismaClient): Promise<FastifyInstance> {

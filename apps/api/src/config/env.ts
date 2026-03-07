@@ -1,9 +1,12 @@
 import { z } from 'zod';
 
-const envSchema = z.object({
-  DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
-  REDIS_URL: z.string().min(1, 'REDIS_URL is required'),
-  JWT_SECRET: z.string().min(1, 'JWT_SECRET is required'),
+export const envSchema = z.object({
+  NODE_ENV: z.string().optional(),
+  PORT: z.string().optional(),
+  DATABASE_URL: z.string().optional().default(''),
+  REDIS_URL: z.string().optional().default(''),
+  JWT_SECRET: z.string().optional().default(''),
+  CORS_ORIGIN: z.string().optional(),
   OPENAI_API_KEY: z.string().optional().default(''),
   MEILISEARCH_HOST: z.string().optional().default(''),
   R2_ENDPOINT: z.string().optional(),
@@ -22,9 +25,12 @@ export function getEnv(): Env {
   }
 
   const result = envSchema.safeParse({
+    NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT,
     DATABASE_URL: process.env.DATABASE_URL,
     REDIS_URL: process.env.REDIS_URL,
     JWT_SECRET: process.env.JWT_SECRET,
+    CORS_ORIGIN: process.env.CORS_ORIGIN,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     MEILISEARCH_HOST: process.env.MEILISEARCH_HOST,
     R2_ENDPOINT: process.env.R2_ENDPOINT ?? process.env.CLOUDFLARE_R2_ENDPOINT ?? '',
@@ -34,11 +40,21 @@ export function getEnv(): Env {
   });
 
   if (!result.success) {
-    const errors = result.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('\n');
-    console.error('Environment validation failed:\n', errors);
-    process.exit(1);
+    console.error('Environment validation failed:', result.error.format());
   }
-
-  validated = result.data;
+  validated = (result.success ? result.data : null) ?? {
+    NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT,
+    DATABASE_URL: process.env.DATABASE_URL ?? '',
+    REDIS_URL: process.env.REDIS_URL ?? '',
+    JWT_SECRET: process.env.JWT_SECRET ?? '',
+    CORS_ORIGIN: process.env.CORS_ORIGIN,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY ?? '',
+    MEILISEARCH_HOST: process.env.MEILISEARCH_HOST ?? '',
+    R2_ENDPOINT: undefined,
+    R2_BUCKET: undefined,
+    R2_ACCESS_KEY: undefined,
+    R2_SECRET_KEY: undefined,
+  } as Env;
   return validated;
 }
