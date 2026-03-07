@@ -1,4 +1,4 @@
-import { ListingStatus, UserRole, type ListingType, type PrismaClient } from '@prisma/client';
+import { ListingStatus, UserRole, ListingType, type PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import Redis from 'ioredis';
 

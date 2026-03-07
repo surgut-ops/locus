@@ -178,10 +178,17 @@ export async function registerAdminController(
       const status = await queueService.getQueueStatus();
       return reply.code(200).send({
         queues: Object.values(status),
-        jobsCount: Object.values(status).reduce(
-          (acc, q) => acc + (q.waiting ?? 0) + (q.active ?? 0) + (q.delayed ?? 0) + (q.failed ?? 0),
-          0,
-        ),
+        jobsCount: Object.values(status).reduce((acc, q) => {
+          const counts = q as unknown as Record<string, number>;
+          return (
+            acc +
+            (counts.wait ?? 0) +
+            (counts.waiting ?? 0) +
+            (counts.active ?? 0) +
+            (counts.delayed ?? 0) +
+            (counts.failed ?? 0)
+          );
+        }, 0),
       });
     } catch (error) {
       return handleAdminError(reply, error);

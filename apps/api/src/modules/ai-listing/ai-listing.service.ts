@@ -1,10 +1,7 @@
 import { ListingType } from '@prisma/client';
 
 import { LoggerService } from '../infrastructure/logging/logger.service.js';
-import type {
-  AiListingAnalyzeResponse,
-  AiListingDetectedFeatures,
-} from './ai-listing.types.js';
+import type { AiListingAnalyzeResponse } from './ai-listing.types.js';
 import { AiListingError } from './ai-listing.types.js';
 
 const LISTING_TYPE_MAP: Record<string, ListingType> = {

@@ -79,33 +79,29 @@ export class SearchRepository {
       },
     });
 
-    const byId = new Map(
-      rows.map((row) => [
-        row.id,
-        {
-          id: row.id,
-          title: row.title,
-          description: row.description,
-          city: row.city,
-          country: row.country,
-          price: toNumberOrNull(row.pricePerNight),
-          rooms: row.rooms,
-          guests: row.maxGuests,
-          latitude: toNumberOrNull(row.latitude),
-          longitude: toNumberOrNull(row.longitude),
-          rating: row.rating,
-          trustScore: row.trustScore ?? 0,
-          amenities: row.amenities.map((item) => item.amenity.name),
-          images: row.images.map((image) => ({
-            id: image.id,
-            url: image.url,
-            thumbnailUrl: image.thumbnailUrl,
-          })),
-        } satisfies SearchResultItem,
-      ]),
-    );
+    const items: SearchResultItem[] = rows.map((row) => ({
+      id: row.id,
+      title: row.title,
+      description: row.description,
+      city: row.city,
+      country: row.country,
+      price: toNumberOrNull(row.pricePerNight),
+      rooms: row.rooms,
+      guests: row.maxGuests,
+      latitude: toNumberOrNull(row.latitude),
+      longitude: toNumberOrNull(row.longitude),
+      rating: row.rating,
+      trustScore: row.trustScore ?? 0,
+      amenities: row.amenities.map((item) => item.amenity.name),
+      images: row.images.map((image) => ({
+        id: image.id,
+        url: image.url,
+        thumbnailUrl: image.thumbnailUrl,
+      })),
+    }));
 
-    return ids.map((id) => byId.get(id)).filter((item): item is SearchResultItem => Boolean(item));
+    const byId = new Map(items.map((item) => [item.id, item]));
+    return ids.map((id) => byId.get(id)).filter((item): item is SearchResultItem => item != null);
   }
 }
 

@@ -129,7 +129,7 @@ function signJwt(claims: JwtClaims): string {
     throw new AuthModuleError('JWT_SECRET is missing', 500);
   }
   const expiresIn = process.env.JWT_EXPIRES_IN ?? '7d';
-  return jwt.sign(claims, secret, { expiresIn });
+  return jwt.sign(claims as object, secret, { expiresIn } as jwt.SignOptions);
 }
 
 function requireEmail(value: unknown): string {

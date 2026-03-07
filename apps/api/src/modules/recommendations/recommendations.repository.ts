@@ -36,7 +36,7 @@ export class RecommendationsRepository {
         userId: input.userId,
         listingId: input.listingId ?? null,
         action: input.action,
-        metadata: input.metadata ?? undefined,
+        metadata: (input.metadata ?? undefined) as Prisma.InputJsonValue | undefined,
       },
     });
   }

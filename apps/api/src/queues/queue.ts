@@ -73,7 +73,7 @@ export class QueueConfig {
 
     this.connection = new IORedis(redisUrl, { maxRetriesPerRequest: null });
     const queueOptions: QueueOptions = {
-      connection: this.connection,
+      connection: this.connection as never,
       prefix,
       defaultJobOptions: {
         removeOnComplete: 1000,

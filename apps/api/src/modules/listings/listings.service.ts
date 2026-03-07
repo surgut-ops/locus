@@ -22,7 +22,13 @@ export class ListingsService {
     return this.repository.createListing(actor.id, dto);
   }
 
-  public async getListingById(id: string) {
+  public async getListingById(id: string): Promise<{
+    listing: Record<string, unknown>;
+    owner: unknown;
+    images: unknown[];
+    amenities: unknown[];
+    reviews: unknown[];
+  }> {
     assertNonEmptyString(id, 'Listing id is required');
 
     const cacheKey = this.cache?.keys.listingDetails(id);

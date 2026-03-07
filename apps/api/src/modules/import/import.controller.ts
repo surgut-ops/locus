@@ -34,7 +34,7 @@ export class ImportController {
       if (!Array.isArray(items)) {
         throw new ImportError('Field "items" must be an array', 400);
       }
-      const { jobId } = await this.service.enqueueJson(actor.id, items);
+      const { jobId } = await this.service.enqueueJson(actor.id, items as import('./import.types.js').RawListingInput[]);
       return reply.code(202).send({ jobId, status: 'queued', message: 'Import job queued' });
     } catch (err) {
       return this.handleError(reply, err);

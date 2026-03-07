@@ -1,3 +1,11 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+settings:
+  onlyBuiltDependencies:
+    - "@parcel/watcher"
+    - "@prisma/client"
+    - esbuild
+    - prisma
+    - sharp

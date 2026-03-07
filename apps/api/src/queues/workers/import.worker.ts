@@ -1,4 +1,4 @@
-import { Worker, type Job } from 'bullmq';
+import { Worker, type Job, type WorkerOptions } from 'bullmq';
 import { PrismaClient } from '@prisma/client';
 import IORedis from 'ioredis';
 
@@ -14,11 +14,12 @@ const logger = new LoggerService('worker:import');
 
 export function createImportWorker() {
   const redisUrl = process.env.REDIS_URL ?? 'redis://127.0.0.1:6379';
+  const connection = new IORedis(redisUrl, { maxRetriesPerRequest: null });
   const worker = new Worker<ImportJobPayload>(
     'import',
     processImportJob,
     {
-      connection: new IORedis(redisUrl, { maxRetriesPerRequest: null }),
+      connection: connection as never,
       prefix: process.env.QUEUE_PREFIX ?? 'locus',
       concurrency: 1,
     },

@@ -84,16 +84,16 @@ export async function registerInfrastructureModule(
     }
   });
 
-  fastify.setErrorHandler((error, request, reply) => {
+  fastify.setErrorHandler((error: unknown, request, reply) => {
     errorTracking.track(error, request);
     logger.error('Request failed', {
       requestId: request.id,
       method: request.method,
       path: request.url,
-      message: error.message,
+      message: error instanceof Error ? error.message : String(error),
     });
     const statusCode = Number((error as { statusCode?: number }).statusCode ?? 500);
-    reply.code(statusCode).send({ message: statusCode >= 500 ? 'Internal server error' : error.message });
+    reply.code(statusCode).send({ message: statusCode >= 500 ? 'Internal server error' : (error instanceof Error ? error.message : String(error)) });
   });
 
   fastify.get('/health', async (_request, reply) => {

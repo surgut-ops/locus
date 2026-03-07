@@ -1,6 +1,14 @@
 import { randomUUID } from 'node:crypto';
 
-import websocket, { type SocketStream } from '@fastify/websocket';
+import websocket from '@fastify/websocket';
+
+interface SocketLike {
+  on(event: string, handler: (...args: unknown[]) => void): void;
+  close(code?: number, reason?: string): void;
+  send(data: string): void;
+  readyState: number;
+}
+type SocketConnection = { socket: SocketLike };
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import Redis from 'ioredis';
 
@@ -71,7 +79,7 @@ class RedisPresenceStore implements PresenceStore {
 }
 
 export class MessagingGateway {
-  private readonly sockets = new Map<string, Map<string, SocketStream['socket']>>();
+  private readonly sockets = new Map<string, Map<string, SocketLike>>();
   private readonly presence: PresenceStore;
   private websocketRegistered = false;
 
@@ -86,8 +94,8 @@ export class MessagingGateway {
       this.websocketRegistered = true;
     }
 
-    fastify.get('/ws/messages', { websocket: true }, (connection, request) => {
-      void this.handleConnection(connection, request);
+    fastify.get('/ws/messages', { websocket: true }, (socket: SocketLike, request) => {
+      void this.handleConnection({ socket }, request);
     });
   }
 
@@ -114,7 +122,7 @@ export class MessagingGateway {
     }
   }
 
-  private async handleConnection(connection: SocketStream, request: FastifyRequest): Promise<void> {
+  private async handleConnection(connection: SocketConnection, request: FastifyRequest): Promise<void> {
     let userId = '';
     let socketId = '';
 
@@ -123,7 +131,7 @@ export class MessagingGateway {
       userId = user.id;
       socketId = randomUUID();
 
-      const userSockets = this.sockets.get(userId) ?? new Map<string, SocketStream['socket']>();
+      const userSockets = this.sockets.get(userId) ?? new Map<string, SocketLike>();
       userSockets.set(socketId, connection.socket);
       this.sockets.set(userId, userSockets);
       await this.presence.addSession(userId, socketId);
@@ -148,7 +156,7 @@ export class MessagingGateway {
 
     const payload = JSON.stringify(event);
     for (const socket of sockets.values()) {
-      if (socket.readyState === socket.OPEN) {
+      if (socket.readyState === 1) {
         socket.send(payload);
       }
     }
