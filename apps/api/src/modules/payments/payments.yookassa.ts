@@ -36,20 +36,18 @@ export type YooKassaWebhookPayload = {
 export class PaymentsYooKassaClient {
   private readonly shopId: string;
   private readonly secretKey: string;
+  private readonly configured: boolean;
 
   public constructor() {
-    const shopId = process.env.YOOKASSA_SHOP_ID;
-    const secretKey = process.env.YOOKASSA_SECRET_KEY;
-
-    if (!shopId) {
-      throw new PaymentsError('YOOKASSA_SHOP_ID is missing', 500);
-    }
-    if (!secretKey) {
-      throw new PaymentsError('YOOKASSA_SECRET_KEY is missing', 500);
-    }
-
+    const shopId = process.env.YOOKASSA_SHOP_ID ?? '';
+    const secretKey = process.env.YOOKASSA_SECRET_KEY ?? '';
+    this.configured = Boolean(shopId && secretKey);
     this.shopId = shopId;
     this.secretKey = secretKey;
+  }
+
+  public isConfigured(): boolean {
+    return this.configured;
   }
 
   public async createPayment(input: YooKassaCreatePaymentInput): Promise<{
@@ -57,6 +55,9 @@ export class PaymentsYooKassaClient {
     status: string;
     paymentUrl: string;
   }> {
+    if (!this.configured) {
+      throw new PaymentsError('YooKassa not configured. Set YOOKASSA_SHOP_ID and YOOKASSA_SECRET_KEY.', 503);
+    }
     const response = await fetch(`${YOOKASSA_API_BASE}/payments`, {
       method: 'POST',
       headers: {
@@ -100,6 +101,9 @@ export class PaymentsYooKassaClient {
   }
 
   public verifyWebhookSignature(rawBody: Buffer | string | undefined, signatureHeader: string | undefined): void {
+    if (!this.configured) {
+      throw new PaymentsError('YooKassa not configured', 503);
+    }
     if (!rawBody) {
       throw new PaymentsError('Missing raw webhook body', 400);
     }
