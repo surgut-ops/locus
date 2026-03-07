@@ -70,9 +70,11 @@ cp .env.production.example .env.production
 
 | Variable | Value |
 |----------|-------|
-| `NEXT_PUBLIC_API_URL` | `https://api.locus.app` |
+| `NEXT_PUBLIC_API_URL` | `https://api.locus.app` (или `https://locusapi-production.up.railway.app` для Railway) |
 | `NEXT_PUBLIC_WS_URL` | `wss://api.locus.app/ws/messages` |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `pk_live_...` |
+
+**Критично:** `NEXT_PUBLIC_API_URL` **обязательно** должен начинаться с `https://`. Без протокола запросы уходят на Vercel как относительные → 404, HTML вместо JSON.
 
 ### 2.4 Домен locus.app
 
@@ -359,7 +361,8 @@ railway run pnpm run seed
 
 При проблемах проверьте:
 
-1. **Failed to fetch** — API недоступен, проверьте `NEXT_PUBLIC_API_URL` и CORS
+1. **Unexpected Error: `<!DOCTYPE html>`** или **404 для /recommendations, /search, /auth/register** — `NEXT_PUBLIC_API_URL` в Vercel указан без `https://`. Должно быть `https://locusapi-production.up.railway.app` (с протоколом). Redeploy frontend после изменения переменных.
+2. **Failed to fetch** — API недоступен, проверьте `NEXT_PUBLIC_API_URL` и CORS
 2. **Database connection** — `DATABASE_URL` корректен, БД запущена
 3. **Redis connection** — `REDIS_URL` корректен
 4. **WebSocket** — `NEXT_PUBLIC_WS_URL` использует `wss://` в production

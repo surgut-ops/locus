@@ -5,7 +5,10 @@ type RequestOptions = {
   cacheTtlMs?: number;
 };
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+// Normalize: missing https:// causes relative fetch → Vercel 404. Always require protocol.
+const _raw = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+const API_BASE_URL =
+  _raw.startsWith('http://') || _raw.startsWith('https://') ? _raw : `https://${_raw.replace(/^\/+/, '')}`;
 const memoryCache = new Map<string, { expiresAt: number; value: unknown }>();
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
