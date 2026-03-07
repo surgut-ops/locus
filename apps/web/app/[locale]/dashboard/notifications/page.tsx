@@ -6,7 +6,7 @@ import {
   fetchNotifications,
   markNotificationRead,
   type Notification,
-} from '../../../services/notifications.service';
+} from '../../../../services/notifications.service';
 
 export default function DashboardNotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
