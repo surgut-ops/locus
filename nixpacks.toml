@@ -1,0 +1,15 @@
+# Railway/Nixpacks: build from monorepo root
+[phases.setup]
+nixPkgs = ["nodejs_22", "pnpm"]
+
+[phases.install]
+cmds = ["pnpm install"]
+
+[phases.build]
+cmds = [
+  "pnpm exec prisma generate",
+  "pnpm turbo run build --filter=@locus/api"
+]
+
+[start]
+cmd = "node apps/api/dist/index.js"

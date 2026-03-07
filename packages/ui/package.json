@@ -14,7 +14,7 @@
     "@types/react-dom": "^19.2.3"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.json --noEmit && node scripts/emit-build-output.cjs",
     "dev": "tsc -w -p tsconfig.json --noEmit",
     "lint": "eslint src --max-warnings=0",
     "typecheck": "tsc -p tsconfig.json --noEmit"

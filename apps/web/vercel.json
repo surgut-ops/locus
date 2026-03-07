@@ -2,6 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "buildCommand": "cd ../.. && pnpm turbo run build --filter=@locus/web",
-  "installCommand": "pnpm install",
+  "installCommand": "cd ../.. && pnpm install",
   "regions": ["fra1"]
 }
