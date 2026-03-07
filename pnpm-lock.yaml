@@ -84,6 +84,9 @@ importers:
       stripe:
         specifier: ^17.7.0
         version: 17.7.0
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@types/bcrypt':
         specifier: ^6.0.0
@@ -97,9 +100,6 @@ importers:
       '@types/nodemailer':
         specifier: ^7.0.11
         version: 7.0.11
-      '@types/ws':
-        specifier: ^8.5.10
-        version: 8.18.1
       prisma:
         specifier: 6.4.1
         version: 6.4.1(typescript@5.9.3)
@@ -151,7 +151,7 @@ importers:
     devDependencies:
       '@ducanh2912/next-pwa':
         specifier: ^10.2.9
-        version: 10.2.9(next@15.5.12(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(webpack@5.105.4(esbuild@0.27.3))
+        version: 10.2.9(next@15.5.12(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(webpack@5.105.4)
       '@types/leaflet':
         specifier: ^1.9.21
         version: 1.9.21
@@ -169,6 +169,12 @@ importers:
         version: 3.4.19(tsx@4.21.0)
 
   packages/config: {}
+
+  packages/shared:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
 
   packages/types: {}
 
@@ -1982,9 +1988,6 @@ packages:
 
   '@types/use-sync-external-store@0.0.6':
     resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
-
-  '@types/ws@8.18.1':
-    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
   '@typescript-eslint/eslint-plugin@8.56.1':
     resolution: {integrity: sha512-Jz9ZztpB37dNC+HU2HI28Bs9QXpzCz+y/twHOwhyrIRdbuVDxSytJNDl6z/aAKlaRIwC7y8wJdkBv7FxYGgi0A==}
@@ -4587,6 +4590,9 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+
   zustand@5.0.11:
     resolution: {integrity: sha512-fdZY+dk7zn/vbWNCYmzZULHRrss0jx5pPFiOuMZ/5HJN6Yv3u+1Wswy/4MpZEkEGhtNH+pwxZB8OKgUBPzYAGg==}
     engines: {node: '>=12.20.0'}
@@ -5712,15 +5718,15 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
-  '@ducanh2912/next-pwa@10.2.9(next@15.5.12(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(webpack@5.105.4(esbuild@0.27.3))':
+  '@ducanh2912/next-pwa@10.2.9(next@15.5.12(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(webpack@5.105.4)':
     dependencies:
       fast-glob: 3.3.2
       next: 15.5.12(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       semver: 7.6.3
-      webpack: 5.105.4(esbuild@0.27.3)
+      webpack: 5.105.4
       workbox-build: 7.1.1
       workbox-core: 7.1.0
-      workbox-webpack-plugin: 7.1.0(webpack@5.105.4(esbuild@0.27.3))
+      workbox-webpack-plugin: 7.1.0(webpack@5.105.4)
       workbox-window: 7.1.0
     transitivePeerDependencies:
       - '@types/babel__core'
@@ -6813,10 +6819,6 @@ snapshots:
   '@types/trusted-types@2.0.7': {}
 
   '@types/use-sync-external-store@0.0.6': {}
-
-  '@types/ws@8.18.1':
-    dependencies:
-      '@types/node': 22.19.13
 
   '@typescript-eslint/eslint-plugin@8.56.1(@typescript-eslint/parser@8.56.1(eslint@9.39.3(jiti@1.21.7))(typescript@5.9.3))(eslint@9.39.3(jiti@1.21.7))(typescript@5.9.3)':
     dependencies:
@@ -9387,15 +9389,13 @@ snapshots:
       type-fest: 0.16.0
       unique-string: 2.0.0
 
-  terser-webpack-plugin@5.3.17(esbuild@0.27.3)(webpack@5.105.4(esbuild@0.27.3)):
+  terser-webpack-plugin@5.3.17(webpack@5.105.4):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       terser: 5.46.0
-      webpack: 5.105.4(esbuild@0.27.3)
-    optionalDependencies:
-      esbuild: 0.27.3
+      webpack: 5.105.4
 
   terser@5.46.0:
     dependencies:
@@ -9641,7 +9641,7 @@ snapshots:
 
   webpack-sources@3.3.4: {}
 
-  webpack@5.105.4(esbuild@0.27.3):
+  webpack@5.105.4:
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.8
@@ -9665,7 +9665,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.0
-      terser-webpack-plugin: 5.3.17(esbuild@0.27.3)(webpack@5.105.4(esbuild@0.27.3))
+      terser-webpack-plugin: 5.3.17(webpack@5.105.4)
       watchpack: 2.5.1
       webpack-sources: 3.3.4
     transitivePeerDependencies:
@@ -9877,12 +9877,12 @@ snapshots:
 
   workbox-sw@7.1.0: {}
 
-  workbox-webpack-plugin@7.1.0(webpack@5.105.4(esbuild@0.27.3)):
+  workbox-webpack-plugin@7.1.0(webpack@5.105.4):
     dependencies:
       fast-json-stable-stringify: 2.1.0
       pretty-bytes: 5.6.0
       upath: 1.2.0
-      webpack: 5.105.4(esbuild@0.27.3)
+      webpack: 5.105.4
       webpack-sources: 1.4.3
       workbox-build: 7.1.0
     transitivePeerDependencies:
@@ -9903,6 +9903,8 @@ snapshots:
   yallist@3.1.1: {}
 
   yocto-queue@0.1.0: {}
+
+  zod@3.25.76: {}
 
   zustand@5.0.11(@types/react@19.2.14)(immer@11.1.4)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)):
     optionalDependencies:

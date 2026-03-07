@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["cd ../.. && pnpm install"]
+
+[phases.build]
+cmds = ["cd ../.. && pnpm exec prisma generate && pnpm turbo run build --filter=@locus/api"]
+
+[start]
+cmd = "node dist/index.js"

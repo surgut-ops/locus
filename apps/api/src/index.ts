@@ -1,6 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 
+import { getEnv } from './config/env.js';
 import { createServer } from './server/server.js';
+
+getEnv();
 
 const port = Number(process.env.PORT ?? 3001);
 const prisma = new PrismaClient();

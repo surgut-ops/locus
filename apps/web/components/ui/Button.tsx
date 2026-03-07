@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import type { ButtonHTMLAttributes, PropsWithChildren } from 'react';
 
 type ButtonProps = PropsWithChildren<
@@ -30,18 +29,18 @@ export function Button({
   const sizeClass =
     size === 'sm' ? 'px-3 py-1.5 text-xs' : size === 'lg' ? 'px-6 py-3 text-base' : 'px-4 py-2 text-sm';
 
+  const scaleClass = disabled || loading ? '' : 'transition-transform hover:scale-[1.02] active:scale-[0.98]';
+
   return (
-    <motion.button
-      whileHover={{ scale: disabled || loading ? 1 : 1.02 }}
-      whileTap={{ scale: disabled || loading ? 1 : 0.98 }}
+    <button
       {...props}
       disabled={disabled || loading}
-      className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-xl font-medium transition active:scale-[0.98] md:min-h-0 md:min-w-0 ${sizeClass} ${variantClass} disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
+      className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-xl font-medium md:min-h-0 md:min-w-0 ${scaleClass} ${sizeClass} ${variantClass} disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
     >
       {loading ? (
         <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
       ) : null}
       {children}
-    </motion.button>
+    </button>
   );
 }

@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react';
 import type { Metadata, Viewport } from 'next';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
+import { NextIntlClientProvider } from 'next-intl';
 
 import { ThemeProvider } from '../components/ThemeProvider';
+import { defaultLocale, getMessages, isValidLocale, localeCookieName } from '../i18n';
 import '../styles/globals.css';
 
 type RootLayoutProps = {
@@ -26,13 +28,23 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-  let locale = 'ru';
+  let locale = defaultLocale;
   try {
     const headersList = await headers();
-    locale = headersList.get('x-next-intl-locale') ?? locale;
+    const headerLocale = headersList.get('x-next-intl-locale');
+    if (headerLocale && isValidLocale(headerLocale)) locale = headerLocale;
   } catch {
-    // Fallback if headers unavailable
+    // Fallback
   }
+  try {
+    const cookieStore = await cookies();
+    const cookieLocale = cookieStore.get(localeCookieName)?.value;
+    if (cookieLocale && isValidLocale(cookieLocale)) locale = cookieLocale;
+  } catch {
+    // Fallback
+  }
+
+  const messages = await getMessages(locale);
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -44,7 +56,9 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         />
       </head>
       <body className="bg-slate-50 text-slate-900 transition-colors duration-200 dark:bg-slate-900 dark:text-slate-100">
-        <ThemeProvider>{children}</ThemeProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ThemeProvider>{children}</ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

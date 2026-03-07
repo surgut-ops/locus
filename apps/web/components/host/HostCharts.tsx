@@ -53,7 +53,7 @@ export function HostCharts({ monthlyRevenue, bookingsPerMonth }: HostChartsProps
               <XAxis dataKey="name" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip
-                formatter={(value: number) => [`$${value.toFixed(2)}`, 'Revenue']}
+                formatter={(value: number | undefined) => [`$${(value ?? 0).toFixed(2)}`, 'Revenue']}
                 contentStyle={{ borderRadius: 8 }}
               />
               <Area
@@ -84,7 +84,7 @@ export function HostCharts({ monthlyRevenue, bookingsPerMonth }: HostChartsProps
               <XAxis dataKey="name" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip
-                formatter={(value: number) => [value, 'Bookings']}
+                formatter={(value: number | undefined) => [value ?? 0, 'Bookings']}
                 contentStyle={{ borderRadius: 8 }}
               />
               <Bar dataKey="bookings" fill="#ec4899" radius={[4, 4, 0, 0]} />

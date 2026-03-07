@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import type { HTMLAttributes, PropsWithChildren } from 'react';
 
 type BadgeProps = PropsWithChildren<
@@ -20,12 +19,11 @@ export function Badge({ children, className = '', variant = 'default', ...props 
           : 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300';
 
   return (
-    <motion.span
-      whileHover={{ scale: 1.03 }}
+    <span
       {...props}
-      className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${variantClass} ${className}`}
+      className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium transition-transform hover:scale-[1.03] ${variantClass} ${className}`}
     >
       {children}
-    </motion.span>
+    </span>
   );
 }

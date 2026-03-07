@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 
 import { PageSection } from '../../../layouts/PageSection';
 
@@ -13,7 +13,7 @@ const CityHeatmap = dynamic(
 
 const POPULAR_CITIES = ['Dubai', 'Moscow', 'London', 'Paris', 'Bangkok', 'Istanbul'];
 
-export default function HeatmapPage() {
+function HeatmapContent() {
   const params = useSearchParams();
   const cityFromUrl = params.get('city') ?? '';
   const [city, setCity] = useState(cityFromUrl || 'Dubai');
@@ -45,5 +45,13 @@ export default function HeatmapPage() {
         </div>
       </PageSection>
     </div>
+  );
+}
+
+export default function HeatmapPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[400px] animate-pulse rounded-2xl bg-slate-100" />}>
+      <HeatmapContent />
+    </Suspense>
   );
 }

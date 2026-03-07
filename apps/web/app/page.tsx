@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
+import { NextIntlClientProvider } from 'next-intl';
 
 import { HomePageContent } from '../components/HomePageContent';
 import { defaultLocale, getMessages, isValidLocale, localeCookieName } from '../i18n';
@@ -16,6 +17,15 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function HomePage() {
-  return <HomePageContent />;
+export default async function HomePage() {
+  const cookieStore = await cookies();
+  const localeCookie = cookieStore.get(localeCookieName)?.value;
+  const locale = isValidLocale(localeCookie) ? localeCookie : defaultLocale;
+  const messages = await getMessages(locale);
+
+  return (
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      <HomePageContent />
+    </NextIntlClientProvider>
+  );
 }

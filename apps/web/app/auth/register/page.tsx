@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FormEvent, useEffect, useState } from 'react';
+import { Suspense, FormEvent, useEffect, useState } from 'react';
 
 import { Button, Input } from '../../../components/ui';
 import { register } from '../../../services/auth';
 import { useAuthStore } from '../../../store/useAuthStore';
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const refCode = searchParams.get('ref') ?? undefined;
@@ -118,5 +118,13 @@ export default function RegisterPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 animate-pulse">Загрузка...</div>}>
+      <RegisterForm />
+    </Suspense>
   );
 }

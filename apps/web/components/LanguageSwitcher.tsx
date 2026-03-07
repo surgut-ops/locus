@@ -2,16 +2,17 @@
 
 import { useLocale } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 import { usePathname, useRouter } from '../i18n/navigation';
 
 const OPTIONS = ['ru', 'en'] as const;
 
-export function LanguageSwitcher() {
+function LanguageSwitcherInner() {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  useSearchParams(); // preserve in tree for router.replace
 
   function onChange(nextLocale: (typeof OPTIONS)[number]) {
     router.replace(pathname, { locale: nextLocale });
@@ -32,5 +33,13 @@ export function LanguageSwitcher() {
         </button>
       ))}
     </div>
+  );
+}
+
+export function LanguageSwitcher() {
+  return (
+    <Suspense fallback={<div className="h-8 w-16 animate-pulse rounded-lg bg-slate-100" />}>
+      <LanguageSwitcherInner />
+    </Suspense>
   );
 }

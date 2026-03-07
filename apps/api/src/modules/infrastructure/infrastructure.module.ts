@@ -105,6 +105,7 @@ export async function registerInfrastructureModule(
 
     return reply.code(200).send({
       status: databaseStatus && redisStatus ? 'ok' : 'degraded',
+      service: 'locus-api',
       database: databaseStatus ? 'up' : 'down',
       redis: redisStatus ? 'up' : 'down',
       queues: queueStatus,

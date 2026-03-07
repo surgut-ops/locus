@@ -36,6 +36,9 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@locus/ui'],
   eslint: { ignoreDuringBuilds: true },
+  experimental: {
+    optimizePackageImports: ['@locus/ui'],
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '**' },

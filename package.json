@@ -3,11 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.6.1",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "turbo run dev --parallel",
     "dev:api": "pnpm exec turbo run dev --filter=@locus/api",
     "dev:web": "pnpm exec turbo run dev --filter=@locus/web",
     "build": "turbo run build",
+    "build:web": "turbo run build --filter=@locus/web",
+    "build:api": "turbo run build --filter=@locus/api",
+    "start": "turbo run start",
     "lint": "turbo run lint",
     "format": "prettier --write .",
     "typecheck": "turbo run typecheck",

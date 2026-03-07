@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 import { Button, Input } from '../../../../components/ui';
@@ -9,7 +9,7 @@ import { useAuthStore } from '../../../../store/useAuthStore';
 import { useShallow } from 'zustand/react/shallow';
 import { Link, useRouter } from '../../../../i18n/navigation';
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const refCode = searchParams.get('ref') ?? undefined;
@@ -121,5 +121,13 @@ export default function RegisterPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 animate-pulse">Загрузка...</div>}>
+      <RegisterForm />
+    </Suspense>
   );
 }
