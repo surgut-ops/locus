@@ -32,3 +32,11 @@ redis://default:KCONFASUrqkGndMoy81yAsmZAZyGZSab@redis-17897.c52.us-east-1-4.ec2
 Формат: `https://xxx.fra.meilisearch.io` (без trailing slash)
 
 Скопировать из Meilisearch Cloud → Project Settings → URL.
+
+### CORS_ORIGIN
+
+Опционально. Список разрешённых origins через запятую. По умолчанию: `http://localhost:3000`, `https://locus-web-seven.vercel.app`.
+
+```
+CORS_ORIGIN=https://locus-web-seven.vercel.app,https://app.locus.com
+```

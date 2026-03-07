@@ -1,4 +1,5 @@
 import type { PrismaClient } from '@prisma/client';
+import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import Fastify, { type FastifyInstance } from 'fastify';
 import rawBody from 'fastify-raw-body';
@@ -33,9 +34,25 @@ import { registerListingsRoutes } from '../routes/listings.routes.js';
 import { registerRecommendationsModuleRoutes } from '../routes/recommendations.routes.js';
 import { registerSearchModuleRoutes } from '../routes/search.routes.js';
 
+const DEFAULT_CORS_ORIGINS = [
+  'http://localhost:3000',
+  'https://locus-web-seven.vercel.app',
+];
+
 export async function createServer(prisma: PrismaClient): Promise<FastifyInstance> {
   const app = Fastify({
     logger: true,
+  });
+
+  const corsOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim()).filter(Boolean)
+    : DEFAULT_CORS_ORIGINS;
+
+  await app.register(cors, {
+    origin: corsOrigins,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id', 'x-user-role'],
   });
 
   await app.register(multipart, {
