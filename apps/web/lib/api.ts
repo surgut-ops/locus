@@ -5,10 +5,10 @@ type RequestOptions = {
   cacheTtlMs?: number;
 };
 
-// Normalize: missing https:// causes relative fetch → Vercel 404. Always require protocol.
-const _raw = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+// Use NEXT_PUBLIC_API_URL; normalize: missing https:// causes relative fetch → Vercel 404.
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 const API_BASE_URL =
-  _raw.startsWith('http://') || _raw.startsWith('https://') ? _raw : `https://${_raw.replace(/^\/+/, '')}`;
+  API_URL.startsWith('http://') || API_URL.startsWith('https://') ? API_URL : `https://${API_URL.replace(/^\/+/, '')}`;
 const memoryCache = new Map<string, { expiresAt: number; value: unknown }>();
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -36,12 +36,18 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     body: options.body ? (isFormData ? (options.body as FormData) : JSON.stringify(options.body)) : undefined,
   });
 
+  const text = await response.text();
+
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || `API request failed (${response.status})`);
+    throw new Error(text || `API request failed (${response.status})`);
   }
 
-  const data = (await response.json()) as T;
+  let data: T;
+  try {
+    data = JSON.parse(text) as T;
+  } catch {
+    throw new Error('API returned non-JSON response');
+  }
 
   if (method === 'GET' && options.cacheTtlMs) {
     memoryCache.set(cacheKey, {
