@@ -2,13 +2,12 @@
   "name": "@locus/api",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
     "postinstall": "prisma generate --schema ../../prisma/schema.prisma",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "workers": "tsx src/workers.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc",
     "lint": "eslint src --max-warnings=0",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },

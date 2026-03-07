@@ -97,7 +97,8 @@ cp .env.production.example .env.production
 2. **Settings** → **Root Directory:** корень репозитория (пусто) — обязательно для monorepo
 3. Build и Start берутся из `railway.json` / `.nixpacks.toml`:
    - Build: `pnpm install && pnpm exec prisma generate && pnpm turbo run build --filter=@locus/api`
-   - Start: `node apps/api/dist/index.js`
+   - Start: `pnpm --filter @locus/api start`
+4. **Критично:** В Vercel укажите `NEXT_PUBLIC_API_URL` и `NEXT_PUBLIC_WS_URL` = URL вашего Railway API (иначе frontend будет обращаться к localhost)
 
 ### 3.3 Переменные окружения (Railway)
 
