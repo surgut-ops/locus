@@ -149,13 +149,13 @@ cp .env.production.example .env.production
 
 ### Миграции
 
-После первого деплоя выполните миграции:
+После первого деплоя выполните миграции вручную (не в start command — иначе блокирует старт):
 
 ```bash
-# Локально с production DATABASE_URL
-DATABASE_URL="postgresql://..." pnpm exec prisma db push
+# Через Railway CLI
+railway run pnpm exec prisma migrate deploy
 
-# Или через Railway CLI
+# Или если нет миграций — db push для начальной схемы
 railway run pnpm exec prisma db push
 ```
 
