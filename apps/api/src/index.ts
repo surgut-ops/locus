@@ -8,6 +8,7 @@ console.log('PORT:', process.env.PORT);
 console.log('DATABASE_URL:', !!process.env.DATABASE_URL);
 console.log('REDIS_URL:', !!process.env.REDIS_URL);
 console.log('JWT_SECRET:', !!process.env.JWT_SECRET);
+console.log('STORAGE_BUCKET:', !!process.env.STORAGE_BUCKET);
 
 getEnv();
 

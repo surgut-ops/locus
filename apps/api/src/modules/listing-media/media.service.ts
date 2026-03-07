@@ -23,6 +23,8 @@ export class ListingMediaStorage {
   private readonly endpoint: string | null;
   private readonly publicBaseUrl: string | null;
 
+  private readonly configured: boolean;
+
   public constructor() {
     const bucket =
       process.env.STORAGE_BUCKET ?? process.env.CLOUDFLARE_R2_BUCKET ?? process.env.S3_BUCKET ?? '';
@@ -36,28 +38,26 @@ export class ListingMediaStorage {
     const endpoint = process.env.STORAGE_ENDPOINT ?? process.env.CLOUDFLARE_R2_ENDPOINT ?? process.env.S3_ENDPOINT;
     const region = process.env.STORAGE_REGION ?? process.env.S3_REGION ?? 'auto';
 
-    if (!bucket || !accessKeyId || !secretAccessKey) {
-      throw new Error(
-        'Missing storage configuration: STORAGE_BUCKET/STORAGE_ACCESS_KEY_ID/STORAGE_SECRET_ACCESS_KEY',
-      );
-    }
+    this.configured = Boolean(bucket && accessKeyId && secretAccessKey);
 
-    this.bucket = bucket;
+    this.bucket = this.configured ? bucket : '';
     this.endpoint = endpoint ?? null;
     this.publicBaseUrl =
       process.env.STORAGE_PUBLIC_BASE_URL ?? process.env.CLOUDFLARE_R2_PUBLIC_BASE_URL ?? null;
-    this.client = new S3Client({
-      region,
-      endpoint,
-      forcePathStyle: Boolean(endpoint),
-      credentials: {
-        accessKeyId,
-        secretAccessKey,
-      },
-    });
+    this.client = this.configured
+      ? new S3Client({
+          region,
+          endpoint,
+          forcePathStyle: Boolean(endpoint),
+          credentials: { accessKeyId, secretAccessKey },
+        })
+      : (null as unknown as S3Client);
   }
 
   public async upload(input: StorageUploadInput): Promise<{ key: string; url: string }> {
+    if (!this.configured) {
+      throw new ListingMediaError('Storage not configured. Set STORAGE_BUCKET/CLOUDFLARE_R2_* or S3_* env vars.', 503);
+    }
     const safeFilename = sanitizeFilename(input.filename);
     const key = `listings/${input.listingId}/${input.folder}/${Date.now()}-${randomUUID()}-${safeFilename}`;
     await this.client.send(
@@ -72,6 +72,7 @@ export class ListingMediaStorage {
   }
 
   public async deleteByUrl(url: string): Promise<void> {
+    if (!this.configured) return;
     const key = this.extractKeyFromUrl(url);
     await this.client.send(
       new DeleteObjectCommand({
