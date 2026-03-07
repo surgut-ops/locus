@@ -47,12 +47,18 @@ export async function createServer(prisma: PrismaClient): Promise<FastifyInstanc
   const corsOrigins = process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim()).filter(Boolean)
     : DEFAULT_CORS_ORIGINS;
+  const allowedSet = new Set(corsOrigins);
 
   await app.register(cors, {
-    origin: corsOrigins,
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true);
+      const normalized = origin.replace(/\/$/, '');
+      const allowed = allowedSet.has(origin) || [...allowedSet].some((o) => o.replace(/\/$/, '') === normalized);
+      cb(null, allowed);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id', 'x-user-role'],
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'x-user-id', 'x-user-role'],
   });
 
   await app.register(multipart, {
