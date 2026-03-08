@@ -10,16 +10,16 @@ import { createServer } from './server/server.js';
 getEnv();
 
 console.log('ENV CHECK');
-console.log('PORT:', process.env.PORT);
-console.log('DATABASE_URL:', !!process.env.DATABASE_URL);
-console.log('JWT_SECRET:', !!process.env.JWT_SECRET);
-console.log('REDIS_URL:', !!process.env.REDIS_URL);
-console.log('STORAGE_BUCKET:', !!process.env.STORAGE_BUCKET);
+console.log({
+  DATABASE_URL: !!process.env.DATABASE_URL,
+  REDIS_URL: !!process.env.REDIS_URL,
+  JWT_SECRET: !!process.env.JWT_SECRET,
+  PORT: process.env.PORT,
+});
 
-const port = Number(process.env.PORT || 3000);
+const port = Number(process.env.PORT) || 3000;
+const host = '0.0.0.0';
 const prisma = new PrismaClient();
-
-console.log('Binding port:', port);
 
 async function startMinimalServer(errorMessage: string): Promise<void> {
   const app = Fastify({ logger: true });
@@ -32,23 +32,24 @@ async function startMinimalServer(errorMessage: string): Promise<void> {
   });
   app.get('/health', async (_req, reply) => {
     return reply.code(200).send({
-      status: 'degraded',
+      status: 'ok',
       service: 'locus-api',
+      mode: 'degraded',
       error: errorMessage,
       hint: 'Check Railway deploy logs. Required: DATABASE_URL, REDIS_URL, JWT_SECRET',
     });
   });
-  console.log('Starting API server...');
-  await app.listen({ port, host: '0.0.0.0' });
-  console.log(`API running in degraded mode on port ${port}`);
+  await app.listen({ port, host }, () => {
+    console.log(`API running on ${host}:${port} (degraded mode)`);
+  });
 }
 
 const start = async (): Promise<void> => {
   try {
     const server = await createServer(prisma);
-    console.log('Starting API server...');
-    await server.listen({ port, host: '0.0.0.0' });
-    console.log(`API running on port ${port}`);
+    await server.listen({ port, host }, () => {
+      console.log(`API running on ${host}:${port}`);
+    });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error('Server init failed:', error);
