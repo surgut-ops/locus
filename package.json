@@ -14,6 +14,7 @@
     "build:web": "turbo run build --filter=@locus/web",
     "build:api": "pnpm --filter @locus/api build",
     "start": "node apps/api/dist/index.js",
+    "start:railway": "prisma migrate deploy && node apps/api/dist/index.js",
     "start:api": "pnpm --filter @locus/api start",
     "lint": "turbo run lint",
     "format": "prettier --write .",
@@ -33,12 +34,12 @@
     "eslint": "^9.19.0",
     "eslint-config-next": "^15.1.7",
     "prettier": "^3.4.2",
-    "prisma": "6.4.1",
     "tsx": "^4.19.2",
     "turbo": "^2.4.0",
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@prisma/client": "6.4.1"
+    "@prisma/client": "6.4.1",
+    "prisma": "6.4.1"
   }
 }

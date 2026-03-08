@@ -2,6 +2,16 @@
 
 Если API не запускается или `/health` возвращает ошибку, проверь переменные в Railway.
 
+## Pre-deploy зависает или падает
+
+**Проблема:** Деплой застревает на «Running pre-deploy command...» (7+ минут).
+
+**Решение:** Pre-deploy **удалён** — миграции запускаются в `start:railway` перед стартом сервера. В Railway Dashboard:
+1. **Settings** → **Deploy** → **Pre-deploy Command** → удали команду (оставь пустым) или полностью убери настройку
+2. Не указывай `prisma migrate deploy` в Pre-deploy — это вызывало зависание
+
+`prisma` перенесён в `dependencies` (был в devDependencies), чтобы CLI был доступен при `pnpm install`.
+
 ## Обязательные (без них сервер падает)
 
 | Переменная | Где взять | Пример |
@@ -32,6 +42,19 @@
 2. **Variables** → **+ New Variable**
 3. Для Postgres: **Variable Reference** → выбрать `DATABASE_URL` из сервиса Postgres
 4. Для Redis: вставить полный URL из Redis Cloud
+
+## Redis: Eviction policy
+
+Если в логах: **"Eviction policy is volatile-lru. It should be noeviction"** — BullMQ требует `maxmemory-policy: noeviction`.
+
+**Redis Cloud:** Data Access Control → выбери базу → Edit database → Advanced → `maxmemory-policy` = `noeviction`.
+
+**Или через redis-cli:**
+```
+CONFIG SET maxmemory-policy noeviction
+```
+
+Без этого очереди (email, уведомления, AI) могут терять задачи при нехватке памяти.
 
 ## Проверка после деплоя
 

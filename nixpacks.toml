@@ -12,4 +12,4 @@ cmds = [
 ]
 
 [start]
-cmd = "node apps/api/dist/index.js"
+cmd = "pnpm run start:railway"

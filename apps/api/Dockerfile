@@ -13,4 +13,4 @@ RUN pnpm --filter @locus/api build
 
 EXPOSE 3000
 
-CMD ["pnpm", "--filter", "@locus/api", "start"]
+CMD ["pnpm", "run", "start:railway"]

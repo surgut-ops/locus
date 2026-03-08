@@ -12,4 +12,4 @@ RUN pnpm build:api
 
 EXPOSE 3000
 
-CMD ["node", "apps/api/dist/index.js"]
+CMD ["pnpm", "run", "start:railway"]

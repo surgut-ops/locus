@@ -5,7 +5,7 @@
     "buildCommand": "pnpm install && pnpm exec prisma generate && pnpm --filter @locus/api build"
   },
   "deploy": {
-    "startCommand": "node apps/api/dist/index.js",
+    "startCommand": "pnpm run start:railway",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
