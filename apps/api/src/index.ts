@@ -31,8 +31,10 @@ async function startMinimalServer(errorMessage: string): Promise<void> {
     origin: ['http://localhost:3000', 'https://locus-web-seven.vercel.app', 'https://locus.app'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'x-user-id', 'x-user-role'],
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'Origin', 'x-user-id', 'x-user-role', 'X-Requested-With'],
     preflight: true,
+    strictPreflight: false,
+    optionsSuccessStatus: 204,
   });
   app.get('/live', async (_req, reply) => reply.code(200).send({ status: 'ok' }));
   app.get('/', async (_req, reply) => reply.code(200).send('LOCUS API running'));

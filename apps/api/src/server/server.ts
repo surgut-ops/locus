@@ -44,8 +44,14 @@ function getCorsOrigins(): string[] {
   const fromEnv = process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim()).filter(Boolean)
     : [];
-  const merged = [...new Set([...DEFAULT_CORS_ORIGINS, ...fromEnv])];
-  return merged;
+  return [...new Set([...DEFAULT_CORS_ORIGINS, ...fromEnv])];
+}
+
+function isOriginAllowed(origin: string | undefined, allowed: string[]): boolean {
+  if (!origin) return true;
+  if (allowed.includes(origin)) return true;
+  if (origin.endsWith('.vercel.app')) return true;
+  return false;
 }
 
 export async function createServer(prisma: PrismaClient): Promise<FastifyInstance> {
@@ -56,11 +62,21 @@ export async function createServer(prisma: PrismaClient): Promise<FastifyInstanc
   const corsOrigins = getCorsOrigins();
 
   await app.register(cors, {
-    origin: corsOrigins,
+    origin: (origin, cb) => {
+      if (isOriginAllowed(origin, corsOrigins) && origin) {
+        cb(null, origin);
+      } else if (isOriginAllowed(origin, corsOrigins)) {
+        cb(null, corsOrigins[0]);
+      } else {
+        cb(null, false);
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'x-user-id', 'x-user-role'],
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'Origin', 'x-user-id', 'x-user-role', 'X-Requested-With'],
     preflight: true,
+    strictPreflight: false,
+    optionsSuccessStatus: 204,
   });
 
   await app.register(multipart, {

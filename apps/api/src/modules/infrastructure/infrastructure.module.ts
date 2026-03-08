@@ -46,6 +46,7 @@ export async function registerInfrastructureModule(
 
   fastify.addHook('onRequest', async (request, reply) => {
     request.startedAtMs = Date.now();
+    if (request.method === 'OPTIONS') return;
     const routePath = request.routeOptions?.url ?? request.url;
     const limit = resolveRateLimitByPath(routePath);
     if (!limit) {
