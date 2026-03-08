@@ -35,8 +35,10 @@ redis://default:KCONFASUrqkGndMoy81yAsmZAZyGZSab@redis-17897.c52.us-east-1-4.ec2
 
 ### CORS_ORIGIN
 
-Опционально. Список разрешённых origins через запятую. По умолчанию: `http://localhost:3000`, `https://locus-web-seven.vercel.app`.
+Опционально. Дополнительные origins (добавляются к дефолтным). Дефолт: `http://localhost:3000`, `https://locus-web-seven.vercel.app`, `https://locus.app`.
 
 ```
-CORS_ORIGIN=https://locus-web-seven.vercel.app,https://app.locus.com
+CORS_ORIGIN=https://app.locus.com
 ```
+
+**Важно:** `https://locus-web-seven.vercel.app` всегда в списке. Если CORS ошибки сохраняются — проверьте Railway deploy logs: возможно API в degraded mode (нет DATABASE_URL/REDIS_URL/JWT_SECRET).

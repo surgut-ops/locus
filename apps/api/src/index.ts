@@ -24,6 +24,9 @@ async function startMinimalServer(errorMessage: string): Promise<void> {
   await app.register(cors, {
     origin: ['http://localhost:3000', 'https://locus-web-seven.vercel.app', 'https://locus.app'],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'x-user-id', 'x-user-role'],
+    preflight: true,
   });
   app.get('/health', async (_req, reply) => {
     return reply.code(200).send({

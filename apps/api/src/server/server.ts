@@ -40,26 +40,27 @@ const DEFAULT_CORS_ORIGINS = [
   'https://locus.app',
 ];
 
+function getCorsOrigins(): string[] {
+  const fromEnv = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim()).filter(Boolean)
+    : [];
+  const merged = [...new Set([...DEFAULT_CORS_ORIGINS, ...fromEnv])];
+  return merged;
+}
+
 export async function createServer(prisma: PrismaClient): Promise<FastifyInstance> {
   const app = Fastify({
     logger: true,
   });
 
-  const corsOrigins = process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim()).filter(Boolean)
-    : DEFAULT_CORS_ORIGINS;
-  const allowedSet = new Set(corsOrigins);
+  const corsOrigins = getCorsOrigins();
 
   await app.register(cors, {
-    origin: (origin, cb) => {
-      if (!origin) return cb(null, true);
-      const normalized = origin.replace(/\/$/, '');
-      const allowed = allowedSet.has(origin) || [...allowedSet].some((o) => o.replace(/\/$/, '') === normalized);
-      cb(null, allowed);
-    },
+    origin: corsOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'x-user-id', 'x-user-role'],
+    preflight: true,
   });
 
   await app.register(multipart, {
