@@ -1,4 +1,10 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from 'path';
+
+const cwd = process.cwd();
+[path.resolve(cwd, '.env'), path.resolve(cwd, '../../.env')].forEach((envPath) => {
+  dotenv.config({ path: envPath, override: false });
+});
 
 import cors from '@fastify/cors';
 import Fastify from 'fastify';
@@ -11,8 +17,8 @@ getEnv();
 
 console.log('ENV DEBUG', {
   DATABASE_URL: !!process.env.DATABASE_URL,
-  JWT_SECRET: !!process.env.JWT_SECRET,
   REDIS_URL: !!process.env.REDIS_URL,
+  JWT_SECRET: !!process.env.JWT_SECRET,
   PORT: process.env.PORT,
 });
 
@@ -39,7 +45,7 @@ async function startMinimalServer(errorMessage: string): Promise<void> {
     });
   });
   await app.listen({ port, host }, () => {
-    console.log(`API running on ${host}:${port} (degraded mode)`);
+    console.log(`API running on 0.0.0.0:${port} (degraded mode)`);
   });
 }
 
@@ -47,7 +53,7 @@ const start = async (): Promise<void> => {
   try {
     const server = await createServer(prisma);
     await server.listen({ port, host }, () => {
-      console.log(`API running on ${host}:${port}`);
+      console.log(`API running on 0.0.0.0:${port}`);
     });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
