@@ -6,10 +6,12 @@ WORKDIR /app
 COPY . .
 
 RUN corepack enable
-RUN pnpm install
+RUN pnpm install --no-frozen-lockfile
 RUN pnpm exec prisma generate
 RUN pnpm build:api
 
-EXPOSE 3000
+ENV NODE_ENV=production
 
-CMD ["pnpm", "run", "start:railway"]
+EXPOSE 8080
+
+CMD ["node", "apps/api/dist/index.js"]

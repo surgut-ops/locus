@@ -2,15 +2,20 @@
 
 Если API не запускается или `/health` возвращает ошибку, проверь переменные в Railway.
 
-## Pre-deploy зависает или падает
+## Pre-deploy и миграции
 
-**Проблема:** Деплой застревает на «Running pre-deploy command...» (7+ минут).
+**Pre-deploy:** Удали команду из Railway Settings → Deploy → Pre-deploy Command (оставь пустым).
 
-**Решение:** Pre-deploy **удалён** — миграции запускаются в `start:railway` перед стартом сервера. В Railway Dashboard:
-1. **Settings** → **Deploy** → **Pre-deploy Command** → удали команду (оставь пустым) или полностью убери настройку
-2. Не указывай `prisma migrate deploy` в Pre-deploy — это вызывало зависание
+**Миграции:** Выполняй вручную после деплоя:
+```bash
+railway run pnpm exec prisma migrate deploy
+```
 
-`prisma` перенесён в `dependencies` (был в devDependencies), чтобы CLI был доступен при `pnpm install`.
+## 502: Application failed to respond
+
+**Причина:** Healthcheck `/health` ждёт ответа от DB и Redis; при медленной связи — таймаут.
+
+**Решение:** Используется `/live` — мгновенный endpoint без внешних зависимостей. Railway healthcheckPath = `/live`.
 
 ## Обязательные (без них сервер падает)
 

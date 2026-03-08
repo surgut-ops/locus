@@ -96,6 +96,15 @@ export async function registerInfrastructureModule(
     reply.code(statusCode).send({ message: statusCode >= 500 ? 'Internal server error' : (error instanceof Error ? error.message : String(error)) });
   });
 
+  /** Instant 200 for Railway/load balancer healthcheck - no DB/Redis calls */
+  fastify.get('/live', async (_request, reply) => {
+    return reply.code(200).send({ status: 'ok' });
+  });
+
+  fastify.get('/', async (_request, reply) => {
+    return reply.code(200).send('LOCUS API running');
+  });
+
   fastify.get('/health', async (_request, reply) => {
     const [databaseStatus, redisStatus, queueStatus] = await Promise.all([
       checkDatabase(options.prisma),

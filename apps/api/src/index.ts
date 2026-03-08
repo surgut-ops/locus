@@ -21,7 +21,7 @@ console.log('ENV DEBUG', {
 
 const rawPort = typeof process.env.PORT === 'string' ? process.env.PORT.trim() : process.env.PORT;
 const parsedPort = parseInt(String(rawPort ?? ''), 10);
-const port = Number.isInteger(parsedPort) && parsedPort >= 1 && parsedPort <= 65535 ? parsedPort : 3000;
+const port = Number.isInteger(parsedPort) && parsedPort >= 1 && parsedPort <= 65535 ? parsedPort : 8080;
 const host = '0.0.0.0';
 const prisma = new PrismaClient();
 
@@ -34,6 +34,8 @@ async function startMinimalServer(errorMessage: string): Promise<void> {
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'x-user-id', 'x-user-role'],
     preflight: true,
   });
+  app.get('/live', async (_req, reply) => reply.code(200).send({ status: 'ok' }));
+  app.get('/', async (_req, reply) => reply.code(200).send('LOCUS API running'));
   app.get('/health', async (_req, reply) => {
     return reply.code(200).send({
       status: 'ok',
