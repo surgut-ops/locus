@@ -8,8 +8,8 @@ COPY . .
 RUN corepack enable
 RUN pnpm install
 RUN pnpm exec prisma generate
-RUN pnpm turbo run build --filter=@locus/api
+RUN pnpm build:api
 
 EXPOSE 3000
 
-CMD ["pnpm", "--filter", "@locus/api", "start"]
+CMD ["node", "apps/api/dist/index.js"]

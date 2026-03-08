@@ -8,7 +8,7 @@ cmds = ["pnpm install"]
 [phases.build]
 cmds = [
   "pnpm exec prisma generate",
-  "pnpm turbo run build --filter=@locus/api"
+  "pnpm build:api"
 ]
 
 [start]

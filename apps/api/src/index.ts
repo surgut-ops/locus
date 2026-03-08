@@ -1,10 +1,7 @@
 import dotenv from 'dotenv';
-import path from 'path';
-
-const cwd = process.cwd();
-[path.resolve(cwd, '.env'), path.resolve(cwd, '../../.env')].forEach((envPath) => {
-  dotenv.config({ path: envPath, override: false });
-});
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 import cors from '@fastify/cors';
 import Fastify from 'fastify';
