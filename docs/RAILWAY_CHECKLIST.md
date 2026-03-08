@@ -10,6 +10,10 @@
 | `REDIS_URL` | Redis Cloud → Configuration → Redis CLI (полный URL) | `redis://default:PASSWORD@redis-xxx.ec2.cloud.redislabs.com:17897` |
 | `JWT_SECRET` | Сгенерировать: `openssl rand -base64 32` | минимум 32 символа |
 
+## Важно: PORT
+
+**НЕ добавляй PORT в Variables.** Railway задаёт его автоматически. Если добавлен вручную и возникает ошибка "PORT variable must be integer between 0 and 65535" — удали PORT из Variables. Возможная причина: trailing newline в значении (исправь через Raw editor или удали переменную).
+
 ## Опциональные (сервер запустится без них)
 
 | Переменная | Назначение |

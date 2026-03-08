@@ -19,7 +19,9 @@ console.log('ENV DEBUG', {
   PORT: process.env.PORT,
 });
 
-const port = Number(process.env.PORT) || 3000;
+const rawPort = typeof process.env.PORT === 'string' ? process.env.PORT.trim() : process.env.PORT;
+const parsedPort = parseInt(String(rawPort ?? ''), 10);
+const port = Number.isInteger(parsedPort) && parsedPort >= 1 && parsedPort <= 65535 ? parsedPort : 3000;
 const host = '0.0.0.0';
 const prisma = new PrismaClient();
 
