@@ -75,6 +75,13 @@ export class QueueConfig {
     const prefix = options.queuePrefix ?? process.env.QUEUE_PREFIX ?? 'locus';
 
     this.connection = new IORedis(redisUrl, { maxRetriesPerRequest: null });
+    this.connection.on('error', (err) => {
+      if (String(err?.message ?? '').includes('Eviction policy')) {
+        logger.warn('Redis eviction policy is not noeviction. BullMQ may misbehave. Set maxmemory-policy noeviction in Redis.');
+      } else {
+        logger.error('Redis connection error', { message: (err as Error)?.message });
+      }
+    });
     const queueOptions: QueueOptions = {
       connection: this.connection as never,
       prefix,
