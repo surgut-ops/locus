@@ -1,6 +1,6 @@
 import type Redis from 'ioredis';
 
-import { getSharedRedis } from '../../lib/redis.client.js';
+import { getSharedRedis } from '../../../lib/redis.client.js';
 
 export class RateLimitService {
   private readonly redis: Redis | null;

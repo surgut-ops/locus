@@ -1,6 +1,6 @@
 import type Redis from 'ioredis';
 
-import { getSharedRedis } from '../../lib/redis.client.js';
+import { getSharedRedis } from '../../../lib/redis.client.js';
 
 /** TTL in seconds for cached data */
 export const CACHE_TTL = {
