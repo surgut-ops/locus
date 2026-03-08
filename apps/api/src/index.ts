@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 import cors from '@fastify/cors';
 import Fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
@@ -5,16 +7,16 @@ import { PrismaClient } from '@prisma/client';
 import { getEnv } from './config/env.js';
 import { createServer } from './server/server.js';
 
+getEnv();
+
 console.log('ENV CHECK');
 console.log('PORT:', process.env.PORT);
 console.log('DATABASE_URL:', !!process.env.DATABASE_URL);
-console.log('REDIS_URL:', !!process.env.REDIS_URL);
 console.log('JWT_SECRET:', !!process.env.JWT_SECRET);
+console.log('REDIS_URL:', !!process.env.REDIS_URL);
 console.log('STORAGE_BUCKET:', !!process.env.STORAGE_BUCKET);
 
-getEnv();
-
-const port = Number(process.env.PORT ?? 3000);
+const port = Number(process.env.PORT || 3000);
 const prisma = new PrismaClient();
 
 console.log('Binding port:', port);
@@ -36,6 +38,7 @@ async function startMinimalServer(errorMessage: string): Promise<void> {
       hint: 'Check Railway deploy logs. Required: DATABASE_URL, REDIS_URL, JWT_SECRET',
     });
   });
+  console.log('Starting API server...');
   await app.listen({ port, host: '0.0.0.0' });
   console.log(`API running in degraded mode on port ${port}`);
 }
@@ -43,6 +46,7 @@ async function startMinimalServer(errorMessage: string): Promise<void> {
 const start = async (): Promise<void> => {
   try {
     const server = await createServer(prisma);
+    console.log('Starting API server...');
     await server.listen({ port, host: '0.0.0.0' });
     console.log(`API running on port ${port}`);
   } catch (error) {
