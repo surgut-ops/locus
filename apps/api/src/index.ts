@@ -9,11 +9,10 @@ import { createServer } from './server/server.js';
 
 getEnv();
 
-console.log('ENV CHECK');
-console.log({
+console.log('ENV DEBUG', {
   DATABASE_URL: !!process.env.DATABASE_URL,
-  REDIS_URL: !!process.env.REDIS_URL,
   JWT_SECRET: !!process.env.JWT_SECRET,
+  REDIS_URL: !!process.env.REDIS_URL,
   PORT: process.env.PORT,
 });
 

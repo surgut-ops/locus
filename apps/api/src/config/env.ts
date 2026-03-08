@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+/** Validates env. Reads from process.env only; never overwrites it. */
 export const envSchema = z.object({
   NODE_ENV: z.string().optional(),
   PORT: z.string().optional(),
