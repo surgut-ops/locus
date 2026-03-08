@@ -1,4 +1,6 @@
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
+
+import { getSharedRedis } from '../../lib/redis.client.js';
 import { ListingStatus, type ListingType, type PrismaClient } from '@prisma/client';
 
 import { AIBehaviorService } from './ai.behavior.service.js';
@@ -28,8 +30,7 @@ export class AIRecommendationService {
     private readonly behavior: AIBehaviorService,
     private readonly ranking: AIRankingService,
   ) {
-    const redisUrl = process.env.REDIS_URL ?? null;
-    this.redis = redisUrl ? new Redis(redisUrl) : null;
+    this.redis = getSharedRedis();
   }
 
   public async getRecommendations(userId: string): Promise<RankedListing[]> {

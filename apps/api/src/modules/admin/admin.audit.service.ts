@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
+
+import { getSharedRedis } from '../../lib/redis.client.js';
 
 type AuditAction =
   | 'user_blocked'
@@ -27,8 +29,7 @@ export class AdminAuditService {
   private readonly key = 'admin:audit:logs';
 
   public constructor() {
-    const redisUrl = process.env.REDIS_URL ?? null;
-    this.redis = redisUrl ? new Redis(redisUrl) : null;
+    this.redis = getSharedRedis();
   }
 
   public async log(entry: Omit<AuditEntry, 'id' | 'createdAt'>): Promise<void> {

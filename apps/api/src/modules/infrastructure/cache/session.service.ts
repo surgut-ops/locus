@@ -1,11 +1,12 @@
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
+
+import { getSharedRedis } from '../../lib/redis.client.js';
 
 export class SessionService {
   private readonly redis: Redis | null;
 
   public constructor() {
-    const redisUrl = process.env.REDIS_URL ?? null;
-    this.redis = redisUrl ? new Redis(redisUrl) : null;
+    this.redis = getSharedRedis();
   }
 
   public async setSession(sessionId: string, payload: unknown, ttlSeconds = 60 * 60 * 24): Promise<void> {

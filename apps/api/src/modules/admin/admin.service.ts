@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
 
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
 
+import { getSharedRedis } from '../../lib/redis.client.js';
 import type { AuthenticatedUser } from '../../utils/auth.js';
 import { AdminAnalyticsService } from './admin.analytics.service.js';
 import { AdminAuditService } from './admin.audit.service.js';
@@ -18,8 +19,7 @@ export class AdminService {
     private readonly analytics: AdminAnalyticsService,
     private readonly audit: AdminAuditService,
   ) {
-    const redisUrl = process.env.REDIS_URL ?? null;
-    this.redis = redisUrl ? new Redis(redisUrl) : null;
+    this.redis = getSharedRedis();
   }
 
   public async getUsers() {

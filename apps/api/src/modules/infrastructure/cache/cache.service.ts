@@ -1,4 +1,6 @@
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
+
+import { getSharedRedis } from '../../lib/redis.client.js';
 
 /** TTL in seconds for cached data */
 export const CACHE_TTL = {
@@ -14,8 +16,7 @@ export class CacheService {
   private readonly fallback = new Map<string, { value: string; expiresAt: number }>();
 
   public constructor() {
-    const redisUrl = process.env.REDIS_URL ?? null;
-    this.redis = redisUrl ? new Redis(redisUrl) : null;
+    this.redis = getSharedRedis();
   }
 
   public async get<T>(key: string): Promise<T | null> {

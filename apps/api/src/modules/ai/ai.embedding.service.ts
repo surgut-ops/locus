@@ -1,5 +1,6 @@
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
 
+import { getSharedRedis } from '../../lib/redis.client.js';
 import { AIError } from './ai.types.js';
 
 export class AIEmbeddingService {
@@ -7,8 +8,7 @@ export class AIEmbeddingService {
   private readonly fallback = new Map<string, number[]>();
 
   public constructor() {
-    const redisUrl = process.env.REDIS_URL ?? null;
-    this.redis = redisUrl ? new Redis(redisUrl) : null;
+    this.redis = getSharedRedis();
   }
 
   public async createListingEmbedding(listingId: string, title: string, description: string): Promise<number[]> {

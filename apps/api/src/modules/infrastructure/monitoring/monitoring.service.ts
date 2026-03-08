@@ -1,4 +1,6 @@
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
+
+import { getSharedRedis } from '../../lib/redis.client.js';
 
 import { type QueueService } from '../queue/queue.service.js';
 
@@ -13,8 +15,7 @@ export class MonitoringService {
   private readonly redis: Redis | null;
 
   public constructor() {
-    const redisUrl = process.env.REDIS_URL ?? null;
-    this.redis = redisUrl ? new Redis(redisUrl) : null;
+    this.redis = getSharedRedis();
   }
 
   public async markActiveUser(userId: string | undefined): Promise<void> {

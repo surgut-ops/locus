@@ -1,6 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
 
+import { getSharedRedis } from '../../lib/redis.client.js';
 import { GrowthError } from './growth.types.js';
 
 type ReferralRecord = {
@@ -25,8 +26,7 @@ export class ReferralService {
   private readonly fallbackRedemptions: RedemptionRecord[] = [];
 
   public constructor() {
-    const redisUrl = process.env.REDIS_URL ?? null;
-    this.redis = redisUrl ? new Redis(redisUrl) : null;
+    this.redis = getSharedRedis();
   }
 
   public async getReferralLink(userId: string): Promise<{ code: string; link: string }> {

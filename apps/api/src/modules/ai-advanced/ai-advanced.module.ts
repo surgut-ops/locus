@@ -1,7 +1,8 @@
 import { ListingStatus, UserRole, ListingType, type PrismaClient } from '@prisma/client';
 import type { FastifyInstance, FastifyReply } from 'fastify';
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
 
+import { getSharedRedis } from '../../lib/redis.client.js';
 import { AuthError, requireAuthenticatedUser } from '../../utils/auth.js';
 import { AIBehaviorService } from '../ai/ai.behavior.service.js';
 import { AIAdvancedError, type InvestmentAnalysisResult } from './ai-advanced.types.js';
@@ -26,8 +27,7 @@ export async function registerAIAdvancedModule(
   const market = new MarketAIService(options.prisma, behavior);
   const forecast = new ForecastAIService(options.prisma, behavior);
 
-  const redisUrl = process.env.REDIS_URL ?? null;
-  const redis = redisUrl ? new Redis(redisUrl) : null;
+  const redis = getSharedRedis();
 
   fastify.get('/ai/host-insights/:listingId', async (request, reply) => {
     try {

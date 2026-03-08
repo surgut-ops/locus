@@ -1,6 +1,8 @@
 import { PaymentStatus, type PrismaClient } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
+
+import { getSharedRedis } from '../../lib/redis.client.js';
 
 import { GrowthError, type ConversionRates, type GrowthEvent, type GrowthEventType } from './growth.types.js';
 import { TrendingSearchService } from './trending-search.service.js';
@@ -13,8 +15,7 @@ export class AnalyticsService {
     private readonly prisma: PrismaClient,
     private readonly trendingSearch: TrendingSearchService,
   ) {
-    const redisUrl = process.env.REDIS_URL ?? null;
-    this.redis = redisUrl ? new Redis(redisUrl) : null;
+    this.redis = getSharedRedis();
   }
 
   public async trackEvent(input: {

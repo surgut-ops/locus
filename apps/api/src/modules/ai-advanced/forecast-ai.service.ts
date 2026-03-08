@@ -1,6 +1,7 @@
 import { BookingStatus, type PrismaClient } from '@prisma/client';
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
 
+import { getSharedRedis } from '../../lib/redis.client.js';
 import { AIBehaviorService } from '../ai/ai.behavior.service.js';
 import { AIAdvancedError, type DemandForecastResult } from './ai-advanced.types.js';
 
@@ -11,8 +12,7 @@ export class ForecastAIService {
     private readonly prisma: PrismaClient,
     private readonly behavior: AIBehaviorService,
   ) {
-    const redisUrl = process.env.REDIS_URL ?? null;
-    this.redis = redisUrl ? new Redis(redisUrl) : null;
+    this.redis = getSharedRedis();
   }
 
   public async predictDemand(listingId: string): Promise<DemandForecastResult> {

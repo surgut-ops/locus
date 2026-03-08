@@ -1,5 +1,6 @@
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
 
+import { getSharedRedis } from '../../lib/redis.client.js';
 import { PaymentsStripeClient } from './payments.stripe.js';
 import { type PaymentsRepository } from './payments.repository.js';
 
@@ -13,8 +14,7 @@ export class PaymentsPayoutService {
     private readonly repository: PaymentsRepository,
     private readonly stripeClient: PaymentsStripeClient,
   ) {
-    const redisUrl = process.env.REDIS_URL ?? null;
-    this.redis = redisUrl ? new Redis(redisUrl) : null;
+    this.redis = getSharedRedis();
   }
 
   public async releaseDuePayouts(): Promise<{ released: number; skipped: number }> {

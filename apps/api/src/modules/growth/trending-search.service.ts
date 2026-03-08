@@ -1,12 +1,13 @@
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
+
+import { getSharedRedis } from '../../lib/redis.client.js';
 
 export class TrendingSearchService {
   private readonly redis: Redis | null;
   private readonly fallbackCounts = new Map<string, number>();
 
   public constructor() {
-    const redisUrl = process.env.REDIS_URL ?? null;
-    this.redis = redisUrl ? new Redis(redisUrl) : null;
+    this.redis = getSharedRedis();
   }
 
   public async trackQuery(rawQuery: string): Promise<void> {

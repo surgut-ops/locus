@@ -1,6 +1,7 @@
 import { BookingStatus, PaymentStatus, Prisma } from '@prisma/client';
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
 
+import { getSharedRedis } from '../../lib/redis.client.js';
 import { getQueueService } from '../infrastructure/queue/queue.service.js';
 import type { AuthenticatedUser } from '../../utils/auth.js';
 import { PaymentsRepository } from './payments.repository.js';
@@ -21,8 +22,7 @@ export class PaymentsService {
     private readonly notificationsService?: import('../notifications/notifications.service.js').NotificationsService,
     private readonly referralService?: import('../referral/referral.service.js').ReferralService,
   ) {
-    const redisUrl = process.env.REDIS_URL ?? null;
-    this.redis = redisUrl ? new Redis(redisUrl) : null;
+    this.redis = getSharedRedis();
   }
 
   public async createPayment(

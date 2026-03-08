@@ -10,8 +10,9 @@ interface SocketLike {
 }
 type SocketConnection = { socket: SocketLike };
 import type { FastifyInstance, FastifyRequest } from 'fastify';
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
 
+import { getSharedRedis } from '../../lib/redis.client.js';
 import { requireAuthenticatedUser } from '../../utils/auth.js';
 import type { MessageRealtimePayload } from './messaging.types.js';
 
@@ -35,8 +36,8 @@ class RedisPresenceStore implements PresenceStore {
   private readonly redis: Redis | null;
   private readonly fallbackSessions = new Map<string, Set<string>>();
 
-  public constructor(redisUrl: string | null) {
-    this.redis = redisUrl ? new Redis(redisUrl) : null;
+  public constructor() {
+    this.redis = getSharedRedis();
   }
 
   public async addSession(userId: string, socketId: string): Promise<void> {
@@ -84,8 +85,7 @@ export class MessagingGateway {
   private websocketRegistered = false;
 
   public constructor() {
-    const redisUrl = process.env.REDIS_URL ?? null;
-    this.presence = new RedisPresenceStore(redisUrl);
+    this.presence = new RedisPresenceStore();
   }
 
   public async registerWebsocket(fastify: FastifyInstance): Promise<void> {

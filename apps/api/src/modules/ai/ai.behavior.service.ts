@@ -1,5 +1,6 @@
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
 
+import { getSharedRedis } from '../../lib/redis.client.js';
 import { AIError, type SearchFilters } from './ai.types.js';
 
 type JsonValue = Record<string, unknown>;
@@ -10,8 +11,7 @@ export class AIBehaviorService {
   private readonly fallbackCounters = new Map<string, number>();
 
   public constructor() {
-    const redisUrl = process.env.REDIS_URL ?? null;
-    this.redis = redisUrl ? new Redis(redisUrl) : null;
+    this.redis = getSharedRedis();
   }
 
   public async trackListingView(userId: string, listingId: string): Promise<void> {

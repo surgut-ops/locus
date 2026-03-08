@@ -1,5 +1,6 @@
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
 
+import { getSharedRedis } from '../../lib/redis.client.js';
 import { getQueueService } from '../infrastructure/queue/queue.service.js';
 import type { AuthenticatedUser } from '../../utils/auth.js';
 import { MessagingGateway } from './messaging.gateway.js';
@@ -15,8 +16,8 @@ class RedisReadStateStore implements ReadStateStore {
   private readonly redis: Redis | null;
   private readonly fallback = new Map<string, string>();
 
-  public constructor(redisUrl: string | null) {
-    this.redis = redisUrl ? new Redis(redisUrl) : null;
+  public constructor() {
+    this.redis = getSharedRedis();
   }
 
   public async setReadAt(conversationId: string, userId: string, readAt: Date): Promise<void> {
@@ -52,8 +53,7 @@ export class MessagingService {
     private readonly gateway: MessagingGateway,
     private readonly notificationsService?: import('../notifications/notifications.service.js').NotificationsService,
   ) {
-    const redisUrl = process.env.REDIS_URL ?? null;
-    this.readState = new RedisReadStateStore(redisUrl);
+    this.readState = new RedisReadStateStore();
   }
 
   public async createConversation(actor: AuthenticatedUser, payload: unknown) {
