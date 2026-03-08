@@ -99,8 +99,8 @@ export async function registerInfrastructureModule(
   fastify.get('/health', async (_request, reply) => {
     const [databaseStatus, redisStatus, queueStatus] = await Promise.all([
       checkDatabase(options.prisma),
-      queueService.isRedisConnected(),
-      queueService.getQueueHealth(),
+      queueService ? queueService.isRedisConnected() : Promise.resolve(false),
+      queueService ? queueService.getQueueHealth() : Promise.resolve({}),
     ]);
 
     return reply.code(200).send({

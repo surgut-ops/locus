@@ -68,7 +68,10 @@ export class QueueConfig {
   public readonly importQueue: Queue<ImportJobPayload>;
 
   public constructor(options: QueueConfigOptions = {}) {
-    const redisUrl = options.redisUrl ?? process.env.REDIS_URL ?? 'redis://127.0.0.1:6379';
+    const redisUrl = options.redisUrl ?? process.env.REDIS_URL;
+    if (!redisUrl?.trim()) {
+      throw new Error('REDIS_URL is required for queue. Set it in Railway Variables.');
+    }
     const prefix = options.queuePrefix ?? process.env.QUEUE_PREFIX ?? 'locus';
 
     this.connection = new IORedis(redisUrl, { maxRetriesPerRequest: null });
@@ -164,7 +167,11 @@ export class QueueConfig {
   }
 }
 
-export function initializeQueue(): QueueConfig {
+export function initializeQueue(): QueueConfig | null {
+  if (!process.env.REDIS_URL?.trim()) {
+    logger.info('REDIS_URL not set, queue disabled');
+    return null;
+  }
   if (!queueInstance) {
     queueInstance = new QueueConfig();
   }
