@@ -27,28 +27,31 @@ const prisma = new PrismaClient();
 
 async function startMinimalServer(errorMessage: string): Promise<void> {
   const app = Fastify({ logger: true });
-  const corsOrigins = ['http://localhost:3000', 'https://locus-web-seven.vercel.app', 'https://locus.app'];
-  await app.register(cors, {
-    origin: corsOrigins,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'Origin', 'x-user-id', 'x-user-role', 'X-Requested-With'],
-    preflight: true,
-    strictPreflight: false,
-    optionsSuccessStatus: 204,
-  });
+  const corsAllowed = ['https://locus-web-seven.vercel.app', 'https://locus.app', 'http://localhost:3000'];
   app.addHook('onRequest', async (req, reply) => {
     if (req.method === 'OPTIONS') {
-      const origin = typeof req.headers.origin === 'string' ? req.headers.origin : undefined;
-      const allowOrigin = origin && (corsOrigins.includes(origin) || origin.endsWith('.vercel.app')) ? origin : corsOrigins[0];
+      const origin = typeof req.headers.origin === 'string' ? req.headers.origin : '';
+      const allowOrigin = origin && (corsAllowed.includes(origin) || origin.endsWith('.vercel.app')) ? origin : corsAllowed[0];
       return reply
         .code(204)
-        .header('Access-Control-Allow-Origin', allowOrigin)
+        .header('Access-Control-Allow-Origin', allowOrigin || corsAllowed[0])
         .header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS')
-        .header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Origin,Accept,x-user-id,x-user-role')
+        .header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept')
         .header('Access-Control-Allow-Credentials', 'true')
         .send();
     }
+  });
+  await app.register(cors, {
+    origin: (origin: string | undefined, cb: (err: Error | null, allow: boolean) => void) => {
+      if (!origin) return cb(null, true);
+      if (corsAllowed.includes(origin) || origin.endsWith('.vercel.app')) return cb(null, true);
+      cb(new Error('Not allowed'), false);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
+    optionsSuccessStatus: 204,
+    preflight: true,
   });
   app.get('/live', async (_req, reply) => reply.code(200).send({ status: 'ok' }));
   app.get('/', async (_req, reply) => reply.code(200).send('LOCUS API running'));

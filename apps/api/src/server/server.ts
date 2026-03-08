@@ -34,24 +34,17 @@ import { registerListingsRoutes } from '../routes/listings.routes.js';
 import { registerRecommendationsModuleRoutes } from '../routes/recommendations.routes.js';
 import { registerSearchModuleRoutes } from '../routes/search.routes.js';
 
-const DEFAULT_CORS_ORIGINS = [
-  'http://localhost:3000',
+const CORS_ALLOWED_BASE = [
   'https://locus-web-seven.vercel.app',
   'https://locus.app',
+  'http://localhost:3000',
 ];
 
-function getCorsOrigins(): string[] {
+function getCorsAllowed(): string[] {
   const fromEnv = process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim()).filter(Boolean)
     : [];
-  return [...new Set([...DEFAULT_CORS_ORIGINS, ...fromEnv])];
-}
-
-function isOriginAllowed(origin: string | undefined, allowed: string[]): boolean {
-  if (!origin) return true;
-  if (allowed.includes(origin)) return true;
-  if (origin.endsWith('.vercel.app')) return true;
-  return false;
+  return [...new Set([...CORS_ALLOWED_BASE, ...fromEnv])];
 }
 
 export async function createServer(prisma: PrismaClient): Promise<FastifyInstance> {
@@ -59,33 +52,35 @@ export async function createServer(prisma: PrismaClient): Promise<FastifyInstanc
     logger: true,
   });
 
-  const corsOrigins = getCorsOrigins();
-
-  await app.register(cors, {
-    origin: corsOrigins,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'x-user-id', 'x-user-role', 'X-Requested-With'],
-    preflight: true,
-    strictPreflight: false,
-    optionsSuccessStatus: 204,
-  });
-
+  const corsAllowed = getCorsAllowed();
   app.addHook('onRequest', async (req, reply) => {
     if (req.method === 'OPTIONS') {
-      const origin = typeof req.headers.origin === 'string' ? req.headers.origin : undefined;
+      const origin = typeof req.headers.origin === 'string' ? req.headers.origin : '';
       const allowOrigin =
-        origin && (corsOrigins.includes(origin) || origin.endsWith('.vercel.app'))
-          ? origin
-          : corsOrigins[0];
+        origin && (corsAllowed.includes(origin) || origin.endsWith('.vercel.app')) ? origin : corsAllowed[0];
       return reply
         .code(204)
-        .header('Access-Control-Allow-Origin', allowOrigin)
+        .header('Access-Control-Allow-Origin', allowOrigin || corsAllowed[0])
         .header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS')
-        .header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Origin,Accept,x-user-id,x-user-role')
+        .header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept')
         .header('Access-Control-Allow-Credentials', 'true')
         .send();
     }
+  });
+
+  await app.register(cors, {
+    origin: (origin: string | undefined, cb: (err: Error | null, allow: boolean) => void) => {
+      if (!origin) return cb(null, true);
+      if (corsAllowed.includes(origin) || origin.endsWith('.vercel.app')) {
+        return cb(null, true);
+      }
+      cb(new Error('Not allowed'), false);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
+    optionsSuccessStatus: 204,
+    preflight: true,
   });
 
   await app.register(multipart, {

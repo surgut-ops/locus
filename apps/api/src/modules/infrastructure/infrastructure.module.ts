@@ -61,6 +61,7 @@ export async function registerInfrastructureModule(
   });
 
   fastify.addHook('onResponse', async (request, reply) => {
+    if (request.method === 'OPTIONS') return;
     const startedAt = request.startedAtMs ?? Date.now();
     const elapsedMs = Date.now() - startedAt;
     const routePath = request.routeOptions?.url ?? request.url;
