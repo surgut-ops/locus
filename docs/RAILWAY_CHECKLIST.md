@@ -17,6 +17,12 @@ railway run pnpm exec prisma migrate deploy
 
 **Решение:** Используется `/live` — мгновенный endpoint без внешних зависимостей. Railway healthcheckPath = `/live`.
 
+**Если 502 сохраняется:**
+- Удали Pre-deploy Command (оставь пустым).
+- Проверь Deploy Logs — ошибки при старте Node.
+- PORT: не добавляй вручную, Railway задаёт его. Если добавлен — удали (trailing newline вызывает ошибку).
+- Если Railway использует Dockerfile: Settings → Build → Builder = Nixpacks (или наоборот).
+
 ## Обязательные (без них сервер падает)
 
 | Переменная | Где взять | Пример |

@@ -12,18 +12,18 @@ import { createServer } from './server/server.js';
 
 getEnv();
 
+const rawPort = String(process.env.PORT ?? '8080').trim();
+const parsedPort = parseInt(rawPort, 10);
+const port = Number.isInteger(parsedPort) && parsedPort >= 1 && parsedPort <= 65535 ? parsedPort : 8080;
+const host = '0.0.0.0';
+
 console.log('ENV DEBUG', {
   DATABASE_URL: !!process.env.DATABASE_URL,
   REDIS_URL: !!process.env.REDIS_URL,
   JWT_SECRET: !!process.env.JWT_SECRET,
   PORT: process.env.PORT,
+  resolvedPort: port,
 });
-
-const rawPort = typeof process.env.PORT === 'string' ? process.env.PORT.trim() : process.env.PORT;
-const parsedPort = parseInt(String(rawPort ?? ''), 10);
-const port = Number.isInteger(parsedPort) && parsedPort >= 1 && parsedPort <= 65535 ? parsedPort : 8080;
-// Railway requires 0.0.0.0; localhost/127.0.0.1 causes 502 Bad Gateway
-const host = '0.0.0.0';
 const prisma = new PrismaClient();
 
 async function startMinimalServer(errorMessage: string): Promise<void> {
@@ -68,17 +68,33 @@ async function startMinimalServer(errorMessage: string): Promise<void> {
       hint: 'Check Railway deploy logs. Required: DATABASE_URL, REDIS_URL, JWT_SECRET',
     });
   });
-  await app.listen({ port, host }, () => {
-    console.log(`API running on 0.0.0.0:${port} (degraded mode)`);
-  });
+  await app.listen({ port, host });
+  console.log(`API running on ${host}:${port} (degraded mode)`);
+}
+
+const STARTUP_TIMEOUT_MS = 18_000;
+
+async function startFullServer(): Promise<void> {
+  const server = await createServer(prisma);
+  await server.listen({ port, host });
+  console.log(`API running on ${host}:${port}`);
 }
 
 const start = async (): Promise<void> => {
+  process.on('unhandledRejection', (err) => console.error('Unhandled rejection:', err));
+  process.on('uncaughtException', (err) => {
+    console.error('Uncaught exception:', err);
+    process.exitCode = 1;
+  });
+
   try {
-    const server = await createServer(prisma);
-    await server.listen({ port, host }, () => {
-      console.log(`API running on 0.0.0.0:${port}`);
-    });
+    const winner = await Promise.race([
+      startFullServer().then(() => 'ok' as const),
+      new Promise<'timeout'>((r) => setTimeout(() => r('timeout'), STARTUP_TIMEOUT_MS)),
+    ]);
+    if (winner === 'timeout') {
+      throw new Error('Full server init timed out');
+    }
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error('Server init failed:', error);
