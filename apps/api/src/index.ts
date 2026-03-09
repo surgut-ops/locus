@@ -15,7 +15,8 @@ getEnv();
 const rawPort = String(process.env.PORT ?? '8080').trim();
 const parsedPort = parseInt(rawPort, 10);
 const port = Number.isInteger(parsedPort) && parsedPort >= 1 && parsedPort <= 65535 ? parsedPort : 8080;
-const host = '0.0.0.0';
+// Railway/Docker: must bind 0.0.0.0 (or ::). localhost/127.0.0.1 = 502. Env HOST overrides.
+const host = process.env.HOST?.trim() || '0.0.0.0';
 
 console.log('ENV DEBUG', {
   DATABASE_URL: !!process.env.DATABASE_URL,
@@ -69,7 +70,7 @@ async function startMinimalServer(errorMessage: string): Promise<void> {
     });
   });
   await app.listen({ port, host });
-  console.log(`API running on ${host}:${port} (degraded mode)`);
+  console.log(`API running (degraded) on ${host}:${port}`);
 }
 
 const STARTUP_TIMEOUT_MS = 18_000;

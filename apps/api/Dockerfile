@@ -12,6 +12,7 @@ RUN pnpm exec prisma generate
 RUN pnpm --filter @locus/api build
 
 ENV NODE_ENV=production
+ENV HOST=0.0.0.0
 
 EXPOSE 8080
 
