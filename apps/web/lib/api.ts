@@ -5,17 +5,13 @@ type RequestOptions = {
   cacheTtlMs?: number;
 };
 
-// NEXT_PUBLIC_API_URL — in production MUST be https:// (prevents Mixed Content, CORS)
+// NEXT_PUBLIC_API_URL — always https for non-localhost (prevents Mixed Content, CORS)
 function normalizeApiUrl(raw: string): string {
   const trimmed = (raw ?? '').trim();
   if (!trimmed) return process.env.NODE_ENV === 'production' ? 'https://locusapi-production.up.railway.app' : 'http://localhost:3001';
   let url = trimmed.startsWith('http://') || trimmed.startsWith('https://') ? trimmed : `https://${trimmed.replace(/^\/+/, '')}`;
-  // Production: always use https (no http for API)
-  if (process.env.NODE_ENV === 'production' && url.startsWith('http://')) {
-    url = 'https://' + url.slice(7);
-  }
-  // Client fallback: if page is https, force API https (mixed content)
-  if (typeof window !== 'undefined' && window.location?.protocol === 'https:' && url.startsWith('http://')) {
+  // External API: never use http (localhost only) — fixes mixed content on HTTPS pages
+  if (url.startsWith('http://') && !url.includes('localhost') && !url.includes('127.0.0.1')) {
     url = 'https://' + url.slice(7);
   }
   return url.replace(/\/+$/, '');
