@@ -5,23 +5,26 @@ type RequestOptions = {
   cacheTtlMs?: number;
 };
 
-// NEXT_PUBLIC_API_URL — always https for non-localhost (prevents Mixed Content, CORS)
+// In production (browser): use /api/proxy to avoid CORS. Server/proxy forwards to Railway.
+const USE_PROXY = typeof window !== 'undefined' && process.env.NODE_ENV === 'production';
+
 function normalizeApiUrl(raw: string): string {
   const trimmed = (raw ?? '').trim();
   if (!trimmed) return process.env.NODE_ENV === 'production' ? 'https://locusapi-production.up.railway.app' : 'http://localhost:3001';
   let url = trimmed.startsWith('http://') || trimmed.startsWith('https://') ? trimmed : `https://${trimmed.replace(/^\/+/, '')}`;
-  // External API: never use http (localhost only) — fixes mixed content on HTTPS pages
   if (url.startsWith('http://') && !url.includes('localhost') && !url.includes('127.0.0.1')) {
     url = 'https://' + url.slice(7);
   }
   return url.replace(/\/+$/, '');
 }
-export const API_BASE_URL = normalizeApiUrl(process.env.NEXT_PUBLIC_API_URL ?? '');
+
+const RAW_API_URL = normalizeApiUrl(process.env.NEXT_PUBLIC_API_URL ?? '');
+export const API_BASE_URL = USE_PROXY ? '/api/proxy' : RAW_API_URL;
 const memoryCache = new Map<string, { expiresAt: number; value: unknown }>();
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const method = options.method ?? 'GET';
-  const url = `${API_BASE_URL}${path}`;
+  const url = `${API_BASE_URL}${path.startsWith('/') ? path : `/${path}`}`;
   const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
   const cacheKey = `${method}:${url}:${JSON.stringify(isFormData ? null : (options.body ?? null))}`;
   const now = Date.now();
