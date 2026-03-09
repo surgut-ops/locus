@@ -1,4 +1,4 @@
-import { apiRequest } from '../lib/api';
+import { apiRequest, API_BASE_URL } from '../lib/api';
 
 export type ListingSearchItem = {
   id: string;
@@ -45,8 +45,6 @@ type MapBoundsParams = {
   east: number;
   west: number;
 };
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 export async function searchListings(params: SearchParams): Promise<SearchResponse> {
   const query = new URLSearchParams();
@@ -176,7 +174,6 @@ export type AiSearchResponse = {
 };
 
 export async function aiSearch(query: string): Promise<AiSearchResponse> {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
   const response = await fetch(`${API_BASE_URL}/ai-search`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -205,7 +202,6 @@ export type HeatmapCityResponse = {
 };
 
 export async function fetchHeatmapByCity(city: string): Promise<HeatmapCityResponse> {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
   const response = await fetch(
     `${API_BASE_URL}/heatmap/city/${encodeURIComponent(city)}`,
     { cache: 'no-store' },

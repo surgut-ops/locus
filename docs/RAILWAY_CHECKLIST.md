@@ -61,6 +61,11 @@ CONFIG SET maxmemory-policy noeviction
 
 Без этого очереди (email, уведомления, AI) могут терять задачи при нехватке памяти.
 
+## Vercel: NEXT_PUBLIC_API_URL
+
+Для frontend на Vercel: **NEXT_PUBLIC_API_URL** должен быть `https://locusapi-production.up.railway.app` (с `https://`).
+Если указан `http://` — браузер блокирует запросы (CORS, mixed content). После смены переменной — redeploy.
+
 ## Проверка после деплоя
 
 1. https://locusapi-production.up.railway.app/health

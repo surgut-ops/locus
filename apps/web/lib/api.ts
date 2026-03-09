@@ -6,9 +6,17 @@ type RequestOptions = {
 };
 
 // Use NEXT_PUBLIC_API_URL; normalize: missing https:// causes relative fetch → Vercel 404.
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
-const API_BASE_URL =
-  API_URL.startsWith('http://') || API_URL.startsWith('https://') ? API_URL : `https://${API_URL.replace(/^\/+/, '')}`;
+// Force https when page is https (fixes CORS when API URL was set as http)
+function normalizeApiUrl(raw: string): string {
+  const trimmed = (raw ?? '').trim();
+  if (!trimmed) return 'http://localhost:3001';
+  let url = trimmed.startsWith('http://') || trimmed.startsWith('https://') ? trimmed : `https://${trimmed.replace(/^\/+/, '')}`;
+  if (typeof window !== 'undefined' && window.location?.protocol === 'https:' && url.startsWith('http://')) {
+    url = 'https://' + url.slice(7);
+  }
+  return url;
+}
+export const API_BASE_URL = normalizeApiUrl(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001');
 const memoryCache = new Map<string, { expiresAt: number; value: unknown }>();
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
