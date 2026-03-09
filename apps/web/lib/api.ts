@@ -5,18 +5,22 @@ type RequestOptions = {
   cacheTtlMs?: number;
 };
 
-// Use NEXT_PUBLIC_API_URL; normalize: missing https:// causes relative fetch → Vercel 404.
-// Force https when page is https (fixes CORS when API URL was set as http)
+// NEXT_PUBLIC_API_URL — in production MUST be https:// (prevents Mixed Content, CORS)
 function normalizeApiUrl(raw: string): string {
   const trimmed = (raw ?? '').trim();
-  if (!trimmed) return 'http://localhost:3001';
+  if (!trimmed) return process.env.NODE_ENV === 'production' ? 'https://locusapi-production.up.railway.app' : 'http://localhost:3001';
   let url = trimmed.startsWith('http://') || trimmed.startsWith('https://') ? trimmed : `https://${trimmed.replace(/^\/+/, '')}`;
+  // Production: always use https (no http for API)
+  if (process.env.NODE_ENV === 'production' && url.startsWith('http://')) {
+    url = 'https://' + url.slice(7);
+  }
+  // Client fallback: if page is https, force API https (mixed content)
   if (typeof window !== 'undefined' && window.location?.protocol === 'https:' && url.startsWith('http://')) {
     url = 'https://' + url.slice(7);
   }
-  return url;
+  return url.replace(/\/+$/, '');
 }
-export const API_BASE_URL = normalizeApiUrl(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001');
+export const API_BASE_URL = normalizeApiUrl(process.env.NEXT_PUBLIC_API_URL ?? '');
 const memoryCache = new Map<string, { expiresAt: number; value: unknown }>();
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {

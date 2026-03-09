@@ -12,6 +12,9 @@ export class AuthController {
       const result = await this.service.register(request.body);
       return reply.code(201).send(result);
     } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error ? error.stack : undefined;
+      request.log.warn({ err: error, message: msg, stack }, 'auth/register failed');
       return handleAuthModuleError(reply, error);
     }
   }

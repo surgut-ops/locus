@@ -38,7 +38,7 @@ const CORS_ALLOWED_BASE = [
   'https://locus-web-seven.vercel.app',
   'https://locus.app',
   'http://localhost:3000',
-];
+] as const;
 
 function getCorsAllowed(): string[] {
   const fromEnv = process.env.CORS_ORIGIN
@@ -47,23 +47,30 @@ function getCorsAllowed(): string[] {
   return [...new Set([...CORS_ALLOWED_BASE, ...fromEnv])];
 }
 
+function isOriginAllowed(origin: string, allowed: string[]): boolean {
+  if (allowed.includes(origin)) return true;
+  if (origin.endsWith('.vercel.app')) return true;
+  return false;
+}
+
 export async function createServer(prisma: PrismaClient): Promise<FastifyInstance> {
   const app = Fastify({
     logger: true,
   });
 
   const corsAllowed = getCorsAllowed();
+  const defaultOrigin = corsAllowed[0] ?? 'https://locus-web-seven.vercel.app';
   app.addHook('onRequest', async (req, reply) => {
     if (req.method === 'OPTIONS') {
       const origin = typeof req.headers.origin === 'string' ? req.headers.origin : '';
-      const allowOrigin =
-        origin && (corsAllowed.includes(origin) || origin.endsWith('.vercel.app')) ? origin : corsAllowed[0];
+      const allowOrigin = origin && isOriginAllowed(origin, corsAllowed) ? origin : defaultOrigin;
       return reply
         .code(204)
-        .header('Access-Control-Allow-Origin', allowOrigin || corsAllowed[0])
+        .header('Access-Control-Allow-Origin', allowOrigin)
         .header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS')
         .header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept')
         .header('Access-Control-Allow-Credentials', 'true')
+        .header('Access-Control-Max-Age', '86400')
         .send();
     }
   });
@@ -71,9 +78,7 @@ export async function createServer(prisma: PrismaClient): Promise<FastifyInstanc
   await app.register(cors, {
     origin: (origin: string | undefined, cb: (err: Error | null, allow: boolean) => void) => {
       if (!origin) return cb(null, true);
-      if (corsAllowed.includes(origin) || origin.endsWith('.vercel.app')) {
-        return cb(null, true);
-      }
+      if (isOriginAllowed(origin, corsAllowed)) return cb(null, true);
       cb(new Error('Not allowed'), false);
     },
     credentials: true,

@@ -22,29 +22,33 @@ console.log('ENV DEBUG', {
 const rawPort = typeof process.env.PORT === 'string' ? process.env.PORT.trim() : process.env.PORT;
 const parsedPort = parseInt(String(rawPort ?? ''), 10);
 const port = Number.isInteger(parsedPort) && parsedPort >= 1 && parsedPort <= 65535 ? parsedPort : 8080;
+// Railway requires 0.0.0.0; localhost/127.0.0.1 causes 502 Bad Gateway
 const host = '0.0.0.0';
 const prisma = new PrismaClient();
 
 async function startMinimalServer(errorMessage: string): Promise<void> {
   const app = Fastify({ logger: true });
   const corsAllowed = ['https://locus-web-seven.vercel.app', 'https://locus.app', 'http://localhost:3000'];
+  const defaultOrigin = corsAllowed[0];
+  const isAllowed = (o: string) => corsAllowed.includes(o) || o.endsWith('.vercel.app');
   app.addHook('onRequest', async (req, reply) => {
     if (req.method === 'OPTIONS') {
       const origin = typeof req.headers.origin === 'string' ? req.headers.origin : '';
-      const allowOrigin = origin && (corsAllowed.includes(origin) || origin.endsWith('.vercel.app')) ? origin : corsAllowed[0];
+      const allowOrigin = origin && isAllowed(origin) ? origin : defaultOrigin;
       return reply
         .code(204)
-        .header('Access-Control-Allow-Origin', allowOrigin || corsAllowed[0])
+        .header('Access-Control-Allow-Origin', allowOrigin)
         .header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS')
         .header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept')
         .header('Access-Control-Allow-Credentials', 'true')
+        .header('Access-Control-Max-Age', '86400')
         .send();
     }
   });
   await app.register(cors, {
     origin: (origin: string | undefined, cb: (err: Error | null, allow: boolean) => void) => {
       if (!origin) return cb(null, true);
-      if (corsAllowed.includes(origin) || origin.endsWith('.vercel.app')) return cb(null, true);
+      if (isAllowed(origin)) return cb(null, true);
       cb(new Error('Not allowed'), false);
     },
     credentials: true,
