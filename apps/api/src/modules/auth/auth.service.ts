@@ -25,6 +25,9 @@ export class AuthService {
   ) {}
 
   public async register(payload: unknown): Promise<AuthResponse> {
+    if (!payload || typeof payload !== 'object') {
+      throw new AuthModuleError('Invalid request body', 400);
+    }
     const dto = parseRegisterPayload(payload);
     const existing = await this.repository.findUserByEmail(dto.email);
     if (existing) {
@@ -33,8 +36,14 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
     const nameParts = splitName(dto.name);
-    const referralCode =
-      this.referralService ? await this.referralService.generateUniqueReferralCode() : undefined;
+    let referralCode: string | undefined;
+    if (this.referralService) {
+      try {
+        referralCode = await this.referralService.generateUniqueReferralCode();
+      } catch (e) {
+        console.warn('generateUniqueReferralCode failed:', e);
+      }
+    }
     const created = await this.repository.createUser({
       email: dto.email,
       passwordHash,
@@ -48,18 +57,20 @@ export class AuthService {
       const referredUserName = `${nameParts.firstName} ${nameParts.lastName}`.trim() || 'Пользователь';
       await this.referralService
         .handleReferralOnRegistration(dto.referralCode, created.id, referredUserName)
-        .catch(() => {});
+        .catch((e) => console.warn('Referral handling failed:', e));
     }
 
     const queueService = getQueueService();
     if (queueService) {
       const name = `${nameParts.firstName} ${nameParts.lastName}`.trim() || 'Пользователь';
-      await queueService.addEmailJob({
-        template: 'welcome',
-        to: created.email,
-        subject: 'Добро пожаловать в LOCUS',
-        data: { name },
-      });
+      await queueService
+        .addEmailJob({
+          template: 'welcome',
+          to: created.email,
+          subject: 'Добро пожаловать в LOCUS',
+          data: { name },
+        })
+        .catch((e) => console.warn('Welcome email queue failed:', e));
     }
 
     return {

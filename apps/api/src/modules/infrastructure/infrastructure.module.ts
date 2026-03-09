@@ -93,9 +93,15 @@ export async function registerInfrastructureModule(
       method: request.method,
       path: request.url,
       message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
     });
     const statusCode = Number((error as { statusCode?: number }).statusCode ?? 500);
-    reply.code(statusCode).send({ message: statusCode >= 500 ? 'Internal server error' : (error instanceof Error ? error.message : String(error)) });
+    const message = statusCode >= 500 ? 'Internal server error' : (error instanceof Error ? error.message : String(error));
+    try {
+      reply.code(statusCode).send({ status: 'error', code: statusCode, message });
+    } catch (sendErr) {
+      logger.error('Error sending error response', { err: sendErr });
+    }
   });
 
   /** Instant 200 for Railway/load balancer healthcheck - no DB/Redis calls */

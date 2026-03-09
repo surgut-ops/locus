@@ -14,7 +14,8 @@ export class AuthController {
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       const stack = error instanceof Error ? error.stack : undefined;
-      request.log.warn({ err: error, message: msg, stack }, 'auth/register failed');
+      request.log.error({ err: error, message: msg, stack }, 'auth/register failed');
+      console.error('REGISTER ERROR:', msg, stack);
       return handleAuthModuleError(reply, error);
     }
   }
@@ -40,11 +41,25 @@ export class AuthController {
 }
 
 function handleAuthModuleError(reply: FastifyReply, error: unknown) {
-  if (error instanceof AuthError) {
-    return reply.code(error.statusCode).send({ message: error.message });
+  try {
+    if (error instanceof AuthError) {
+      return reply.code(error.statusCode).send({
+        status: 'error',
+        code: error.statusCode,
+        message: error.message,
+      });
+    }
+    if (error instanceof AuthModuleError) {
+      return reply.code(error.statusCode).send({
+        status: 'error',
+        code: error.statusCode,
+        message: error.message,
+      });
+    }
+    const msg = error instanceof Error ? error.message : 'Internal server error';
+    return reply.code(500).send({ status: 'error', code: 500, message: msg });
+  } catch (sendErr) {
+    console.error('handleAuthModuleError send failed:', sendErr);
+    throw sendErr;
   }
-  if (error instanceof AuthModuleError) {
-    return reply.code(error.statusCode).send({ message: error.message });
-  }
-  return reply.code(500).send({ message: 'Internal server error' });
 }
