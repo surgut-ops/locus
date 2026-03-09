@@ -17,7 +17,7 @@ railway run pnpm exec prisma migrate deploy
 
 **Решение:** Используется `/live` — мгновенный endpoint без внешних зависимостей. Railway healthcheckPath = `/live`.
 
-**HOST=0.0.0.0:** В Dockerfile задано `ENV HOST=0.0.0.0`. Не удаляй — без этого сервер слушает 127.0.0.1 и Railway возвращает 502.
+**HOST=0.0.0.0:** Railway использует Nixpacks (не Dockerfile). В `railway.json` и `nixpacks.toml` startCommand явно задаёт `HOST=0.0.0.0`. Либо добавь в Railway Variables: `HOST=0.0.0.0`. Без этого — 502.
 
 **Если 502 сохраняется:**
 - Удали Pre-deploy Command (оставь пустым).
